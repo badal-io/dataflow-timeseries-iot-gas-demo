@@ -1,0 +1,83 @@
+[
+  {
+    "key": {
+      "major_key": "Key-A",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 10.0
+    }, "timestamp": "2000-01-01T00:00:00Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-B",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 110.0
+    }, "timestamp": "2000-01-01T00:00:00Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-C",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 210.0
+    }, "timestamp": "2000-01-01T00:00:00Z",
+    "time": {
+      "advance_watermark_seconds": 1
+    }
+  },
+  {
+    "key": {
+      "major_key": "Key-A",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 20.0
+    }, "timestamp": "2000-01-01T00:00:01Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-B",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 120.0
+    }, "timestamp": "2000-01-01T00:00:01Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-C",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 220.0
+    }, "timestamp": "2000-01-01T00:00:01Z",
+    "time": {
+      "advance_watermark_seconds": 2
+    }
+  },
+  {
+    "key": {
+      "major_key": "Key-A",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 30.0
+    }, "timestamp": "2000-01-01T00:00:02Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-B",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 130.0
+    }, "timestamp": "2000-01-01T00:00:02Z"
+  },
+  {
+    "key": {
+      "major_key": "Key-C",
+      "minor_key_string": "MKey-a"
+    },
+    "data": {"double_val": 230.0
+    }, "timestamp": "2000-01-01T00:00:02Z",
+    "time": {
+      "advance_watermark_expression": "INFINITY"
+    }
+  }
+]
