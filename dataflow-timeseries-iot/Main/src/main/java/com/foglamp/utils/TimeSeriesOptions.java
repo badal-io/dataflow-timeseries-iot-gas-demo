@@ -22,37 +22,39 @@ import com.google.dataflow.sample.timeseriesflow.options.TFXOptions;
 import com.google.dataflow.sample.timeseriesflow.options.TSOutputPipelineOptions;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
-
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.StreamingOptions;
 import org.apache.beam.sdk.options.Validation.Required;
 
 public interface TimeSeriesOptions
-    extends TSOutputPipelineOptions, TSMetricsOptions, TFXOptions, PipelineOptions, StreamingOptions {
-        @Description("The Cloud Pub/Sub topic to read from")
-        @Required
-        String getInputTopic();
+    extends TSOutputPipelineOptions,
+        TSMetricsOptions,
+        TFXOptions,
+        PipelineOptions,
+        StreamingOptions {
+  @Description("The Cloud Pub/Sub topic to read from")
+  @Required
+  String getInputTopic();
 
-        void setInputTopic(String value);
+  void setInputTopic(String value);
 
-        @Description("BigQuery output table")
-        @Required
-        String getOutputTable(); // "[project_id]:[dataset_id].[table_id]"
+  @Description("BigQuery output table")
+  @Required
+  String getOutputTable(); // "[project_id]:[dataset_id].[table_id]"
 
-        void setOutputTable(String value);
+  void setOutputTable(String value);
 
-        @Description(
-            "In order to see easy output of metrics for demos set this to true. This will result in all values being 'printed' to logs.")
-        @Default.Boolean(false)
-        Boolean getEnablePrintMetricsToLogs();
+  @Description(
+      "In order to see easy output of metrics for demos set this to true. This will result in all values being 'printed' to logs.")
+  @Default.Boolean(false)
+  Boolean getEnablePrintMetricsToLogs();
 
-        void setEnablePrintMetricsToLogs(Boolean value);
+  void setEnablePrintMetricsToLogs(Boolean value);
 
-        @Description(
-            "In order to see easy output of TF.Examples for demos set this to true. This will result in all values being 'printed' to logs.")
-        @Default.Boolean(false)
-        Boolean getEnablePrintTFExamplesToLogs();
+  @Description(
+      "In order to see easy output of TF.Examples for demos set this to true. This will result in all values being 'printed' to logs.")
+  @Default.Boolean(false)
+  Boolean getEnablePrintTFExamplesToLogs();
 
-        void setEnablePrintTFExamplesToLogs(Boolean value);
-}        
+  void setEnablePrintTFExamplesToLogs(Boolean value);
+}
