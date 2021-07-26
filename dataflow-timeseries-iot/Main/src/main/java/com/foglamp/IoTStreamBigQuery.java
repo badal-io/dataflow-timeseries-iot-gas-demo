@@ -48,8 +48,8 @@ public class IoTStreamBigQuery {
     TimeSeriesOptions options = PipelineOptionsFactory.fromArgs(args).as(TimeSeriesOptions.class);
 
     options.setAppName("TimeSeriesIoTDataflow");
-    options.setTypeOneComputationsLengthInSecs(5);
-    options.setTypeTwoComputationsLengthInSecs(30);
+    //options.setTypeOneComputationsLengthInSecs(5);
+    //options.setTypeTwoComputationsLengthInSecs(30);
     // options.setOutputTimestepLengthInSecs(30);
     options.setGapFillEnabled(false);
     options.setTypeOneBasicMetrics(ImmutableList.of("typeone.Sum", "typeone.Min", "typeone.Max"));

@@ -34,11 +34,14 @@ import org.joda.time.Instant;
 
 public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollection<Row>> {
 
-  public static final String TIMESERIES_MAJOR_KEY = "timeseries_key";
-  public static final String TIMESERIES_MINOR_KEY = "timeseries_minor_key";
-  public static final String UPPER_WINDOW_BOUNDARY = "upper_window_boundary";
-  public static final String LOWER_WINDOW_BOUNDARY = "lower_window_boundary";
-  public static final String IS_GAP_FILL_VALUE = "is_gap_fill_value";
+  //public static final String TIMESERIES_MAJOR_KEY = "timeseries_key";
+  //public static final String TIMESERIES_MINOR_KEY = "timeseries_minor_key";
+  //public static final String UPPER_WINDOW_BOUNDARY = "upper_window_boundary";
+  //public static final String LOWER_WINDOW_BOUNDARY = "lower_window_boundary";
+  //public static final String IS_GAP_FILL_VALUE = "is_gap_fill_value";
+  public static final String TIMESERIES_MAJOR_KEY = "device_id";
+  public static final String TIMESERIES_MINOR_KEY = "property_measured";
+  public static final String UPPER_WINDOW_BOUNDARY = "timestamp";
   public static final String DATA = "data";
 
   public static Schema tsAccumRowSchema() {
@@ -46,12 +49,12 @@ public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollect
     return Schema.builder()
         .addStringField(TIMESERIES_MAJOR_KEY)
         .addStringField(TIMESERIES_MINOR_KEY)
-        .addDateTimeField(LOWER_WINDOW_BOUNDARY)
+        //.addDateTimeField(LOWER_WINDOW_BOUNDARY)
         .addDateTimeField(UPPER_WINDOW_BOUNDARY)
-        .addBooleanField(IS_GAP_FILL_VALUE)
+        //.addBooleanField(IS_GAP_FILL_VALUE)
         .addNullableField("RELATIVE_STRENGTH_INDICATOR", FieldType.DOUBLE)
-        .addNullableField("FIRST", FieldType.DOUBLE)
-        .addNullableField("LAST", FieldType.DOUBLE)
+        //.addNullableField("FIRST", FieldType.DOUBLE)
+        //.addNullableField("LAST", FieldType.DOUBLE)
         .addNullableField("SIMPLE_MOVING_AVERAGE", FieldType.DOUBLE)
         .build();
   }
@@ -76,24 +79,24 @@ public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollect
       public Row apply(TSAccum input) {
 
         Data rsi = input.getDataStoreMap().get("RELATIVE_STRENGTH_INDICATOR");
-        Data first = input.getDataStoreMap().get("FIRST");
-        Data last = input.getDataStoreMap().get("LAST");
+        //Data first = input.getDataStoreMap().get("FIRST");
+        //Data last = input.getDataStoreMap().get("LAST");
         Data avg = input.getDataStoreMap().get("SIMPLE_MOVING_AVERAGE");
 
         FieldValueBuilder row =
             Row.withSchema(tsAccumRowSchema())
                 .withFieldValue(TIMESERIES_MAJOR_KEY, input.getKey().getMajorKey())
                 .withFieldValue(TIMESERIES_MINOR_KEY, input.getKey().getMinorKeyString())
-                .withFieldValue(IS_GAP_FILL_VALUE, input.getHasAGapFillMessage())
-                .withFieldValue(
-                    LOWER_WINDOW_BOUNDARY,
-                    Instant.ofEpochMilli(Timestamps.toMillis(input.getLowerWindowBoundary())))
+                //.withFieldValue(IS_GAP_FILL_VALUE, input.getHasAGapFillMessage())
+                //.withFieldValue(
+                //    LOWER_WINDOW_BOUNDARY,
+                //    Instant.ofEpochMilli(Timestamps.toMillis(input.getLowerWindowBoundary())))
                 .withFieldValue(
                     UPPER_WINDOW_BOUNDARY,
                     Instant.ofEpochMilli(Timestamps.toMillis(input.getUpperWindowBoundary())))
                 .withFieldValue("RELATIVE_STRENGTH_INDICATOR", rsi.getDoubleVal())
-                .withFieldValue("FIRST", first.getDoubleVal())
-                .withFieldValue("LAST", last.getDoubleVal())
+                //.withFieldValue("FIRST", first.getDoubleVal())
+                //.withFieldValue("LAST", last.getDoubleVal())
                 .withFieldValue("SIMPLE_MOVING_AVERAGE", avg.getDoubleVal());
 
         return row.build();
