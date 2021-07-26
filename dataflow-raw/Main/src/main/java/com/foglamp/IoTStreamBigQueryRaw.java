@@ -23,6 +23,7 @@ import com.foglamp.utils.messageParsing.JsonToTableRow;
 import com.foglamp.utils.messageParsing.FormatJson;
 import com.foglamp.utils.messageParsing.TableRowFormat;
 import com.foglamp.utils.messageParsing.GsonConvertToString;
+import com.foglamp.utils.customFn.EventFilter;
 import com.google.api.services.pubsub.model.PubsubMessage;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -54,6 +55,7 @@ public class IoTStreamBigQueryRaw {
     String destination_table = options.getOutputTable();
     String input_topic = options.getInputTopic();
     String output_topic = options.getOutputTopic();
+    String output_event_topic = options.getOutputEventTopic();
 
     Pipeline pipeline = Pipeline.create(options);
 
@@ -66,6 +68,7 @@ public class IoTStreamBigQueryRaw {
 
     PCollection<Iterable<TableRow>> message_strings = messages.apply("Format TableRows", ParDo.of(new TableRowFormat()));
     PCollection<TableRow> flat_rows = message_strings.apply(Flatten.iterables());
+    PCollection<TableRow> event_rows = flat_rows.apply("Detect Events", ParDo.of(new EventFilter()));
 
     TableSchema schema = BigQuerySchemaCreate.createSchema();
     flat_rows.apply(
@@ -76,7 +79,10 @@ public class IoTStreamBigQueryRaw {
             .to(destination_table));
 
     PCollection<String> output_raw = flat_rows.apply("Convert to String", ParDo.of(new GsonConvertToString()));
+    PCollection<String> output_events = event_rows.apply("Convert to String (Events)", ParDo.of(new GsonConvertToString()));
+    
     output_raw.apply("Write to Pub/Sub", PubsubIO.writeStrings().to(output_topic)); 
+    output_events.apply("Write to Pub/Sub (Events)", PubsubIO.writeStrings().to(output_event_topic)); 
 
     pipeline.run().waitUntilFinish();
   }

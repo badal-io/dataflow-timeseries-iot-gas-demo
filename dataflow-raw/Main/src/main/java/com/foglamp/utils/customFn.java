@@ -52,4 +52,20 @@ public class customFn {
       o.output(input);
     }
   }
+
+  public static class EventFilter extends DoFn<TableRow, TableRow> {
+    @ProcessElement
+    public void processElement(ProcessContext c) {
+      TableRow row = c.element();
+
+      String property_measured = (String) row.get("property_measured");
+      Double value = (Double) row.get("value");
+
+      if (property_measured == "flowrate") {
+        if (value <= 46.0) {
+          c.output(row);
+        }
+      }
+    }
+  }
 }

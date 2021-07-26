@@ -40,4 +40,10 @@ public interface Options extends PipelineOptions, StreamingOptions {
   String getOutputTopic();
 
   void setOutputTopic(String value);
+
+  @Description("Pub/Sub output event topic")
+  @Required
+  String getOutputEventTopic();
+
+  void setOutputEventTopic(String value);
 }

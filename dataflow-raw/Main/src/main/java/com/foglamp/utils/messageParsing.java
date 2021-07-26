@@ -75,25 +75,6 @@ public class messageParsing {
     }
   }
 
-  /*
-  public static class TableRowToPubSubMessage extends DoFn<TableRow, PubsubMessage> {
-    @ProcessElement
-    public void processElement(ProcessContext c) {
-      TableRow row = c.element();
-
-      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-      try {
-        TableRowJsonCoder.of().encode(row, outStream, Context.OUTER);
-      } catch (IOException e) {
-      throw new RuntimeException("Failed to product output stream");
-      }
-      ByteString data = ByteString.copyFrom(outStream.toByteArray());
-      PubsubMessage message = PubsubMessage.setData(data);
-      c.output(message);
-    }
-  }
-  */
-
   public static class FormatJson extends DoFn<String, String> {
     @ProcessElement
     public void processElement(ProcessContext c) {

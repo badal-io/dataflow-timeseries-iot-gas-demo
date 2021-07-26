@@ -9,6 +9,7 @@
                   --tempLocation=gs://foglamp/dataflow/temp2 \
                   --inputTopic=projects/sandbox-keyera-poc/topics/foglamp-demo \
                   --outputTopic=projects/sandbox-keyera-poc/topics/foglamp-demo-raw \
+                  --outputEventTopic=projects/sandbox-keyera-poc/topics/foglamp-demo-events \
                   --outputTable=sandbox-keyera-poc:foglamp_demo.measurements_raw"
 
 ./gradlew clean execute \
