@@ -35,27 +35,4 @@ public interface Options extends PipelineOptions, StreamingOptions {
 
   void setOutputTable(String value);
 
-  @Description("BigQuery input table")
-  @Required
-  String getInputTable(); // "[project_id]:[dataset_id].[table_id]"
-
-  void setInputTable(String value);
-
-  @Description("Pub/Sub output topic")
-  @Required
-  String getOutputTopic();
-
-  void setOutputTopic(String value);
-
-  @Description("Pub/Sub output event topic")
-  @Required
-  String getOutputEventTopic();
-
-  void setOutputEventTopic(String value);
-
-  @Description("Timer expiry in seconds")
-  @Required
-  int getTimerSize();
-
-  void setTimerSize(int value);
 }

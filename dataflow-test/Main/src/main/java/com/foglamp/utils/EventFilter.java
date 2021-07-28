@@ -19,7 +19,6 @@
 package com.foglamp.utils;
 
 import com.foglamp.utils.ConditionEvaluator;
-import com.foglamp.utils.LoopingStatefulTimer;
 
 import java.util.Map;
 
@@ -53,18 +52,14 @@ public class EventFilter {
         PCollection<TableRow> flat_rows,
         PCollection<TableRow> event_definitions,
         TupleTag<TableRow> all_measurements,
-        TupleTag<TableRow> event_measurements,
-        int timer_size
+        TupleTag<TableRow> event_measurements
         ) {
 
-            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows
-                .apply(ParDo.of(new GenerateKeys()))
-                .apply(ParDo.of(new LoopingStatefulTimer(timer_size)));
-
+            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows.apply(ParDo.of(new GenerateKeys()));
             PCollection<KV<String, TableRow>> event_definitions_keyed = event_definitions.apply(ParDo.of(new GenerateKeys()));
 
             PCollectionView<Map<String, Iterable<TableRow>>> view = event_definitions_keyed.apply(View.<String, TableRow>asMultimap());
-            
+
             PCollectionTuple results = 
                 flat_rows_keyed.apply("Detect Events", ParDo
                     .of(new DoFn<KV<String, TableRow>, TableRow>() {
@@ -78,7 +73,7 @@ public class EventFilter {
                         String property_measured = (String) row.get("property_measured");
                         Double value = (Double) row.get("value");
 
-                        if (value == null) {
+                        if (property_measured == "Device Error") {
                             row.set("event_type", "Device Error");
                             c.output(event_measurements, row);
                         }

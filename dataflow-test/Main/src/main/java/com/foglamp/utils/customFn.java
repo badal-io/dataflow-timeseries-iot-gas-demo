@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foglamp_events.utils;
+package com.foglamp.utils;
 
 import com.google.api.services.bigquery.model.TableRow;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -24,17 +24,13 @@ import org.apache.beam.sdk.values.KV;
 import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormat;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 
 public class customFn {
   public static class CreateKey extends DoFn<TableRow, KV<String, TableRow>> {
     @ProcessElement
     public void processElement(ProcessContext c) {
       TableRow row = c.element();
-      String device_id = (String) row.get("device_id");
-      String event_type = (String) row.get("event_type");
-      String key = String.format("%s#%s", event_type, device_id);
+      String key = (String) row.get("device_id");
       c.output(KV.of(key, row));
     }
   }

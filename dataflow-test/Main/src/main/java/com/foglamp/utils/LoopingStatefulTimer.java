@@ -37,17 +37,16 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import com.google.protobuf.util.Timestamps;
 
+import java.util.UUID;
 
-public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, TableRow>> {
 
-    int timerExpiry;
-
-    public LoopingStatefulTimer(int duration) {
-        this.timerExpiry = duration;
-    }
+public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, TableRow> {
 
     @StateId("key")
     private final StateSpec<ValueState<String>> key = StateSpecs.value(StringUtf8Coder.of());
+
+    @StateId("eventKey")
+    private final StateSpec<ValueState<String>> eventKey = StateSpecs.value(StringUtf8Coder.of());
 
     @TimerId("loopingTimer")
     private final TimerSpec loopingTime = TimerSpecs.timer(TimeDomain.EVENT_TIME);
@@ -56,42 +55,42 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, 
     public void process(
         ProcessContext c, 
         @StateId("key") ValueState<String> key,
+        @StateId("eventKey") ValueState<String> eventKey,
         @TimerId("loopingTimer") Timer loopingTimer) {
 
-            Instant nextTimerTimeBasedOnCurrentElement = c.timestamp().plus(Duration.standardSeconds(timerExpiry));
+            TableRow row = c.element().getValue();
 
+            Instant nextTimerTimeBasedOnCurrentElement = c.timestamp().plus(Duration.standardSeconds(10));
             loopingTimer.set(nextTimerTimeBasedOnCurrentElement);
 
             if (key.read() == null) {
                 key.write(c.element().getKey());
             }
 
-            c.output(c.element());
+            String eventKeyString = new String();
+            if (eventKey.read() == null) {
+                String uuid = UUID.randomUUID().toString();
+                eventKey.write(uuid);
+                eventKeyString = uuid;
+            } else {
+                eventKeyString = eventKey.read();
+            }
+
+            row.set("event_id", eventKeyString);
+            c.output(row);
     }
 
     @OnTimer("loopingTimer")
     public void onTimer(
         OnTimerContext c,
         @StateId("key") ValueState<String> key,
+        @StateId("eventKey") ValueState<String> eventKey,
         @TimerId("loopingTimer") Timer loopingTimer) {
 
-            String[] key_parts = key.read().split("#");
-            String property_measured = key_parts[0];
-            String device_id = key_parts[1];
-
-            Instant timestamp = c.timestamp();
-            String ts = timestamp.toString();
-
-            TableRow new_row = new TableRow()
-                .set("device_id", device_id)
-                .set("timestamp", ts)
-                .set("value", null)
-                .set("property_measured", property_measured)
-                .set("units_of_measurement", null);
-            c.output(KV.of(key.read(), new_row));
-
-            Instant nextTimer = c.timestamp().plus(Duration.standardSeconds(timerExpiry));
-
+            Instant nextTimer = c.timestamp().plus(Duration.standardSeconds(10));
             loopingTimer.set(nextTimer);
+
+            String nextUUID = UUID.randomUUID().toString();
+            eventKey.write(nextUUID);
         }       
 }

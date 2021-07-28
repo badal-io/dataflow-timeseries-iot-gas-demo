@@ -15,13 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foglamp_events;
+package com.foglamp;
 
-import com.foglamp_events.utils.BigQuerySchemaCreate;
-import com.foglamp_events.utils.Options;
-import com.foglamp_events.utils.customFn.CreateKey;
-import com.foglamp_events.utils.messageParsing.JsonToTableRow;
-import com.foglamp_events.utils.LoopingStatefulTimer;
+import com.foglamp.utils.BigQuerySchemaCreate;
+import com.foglamp.utils.Options;
+import com.foglamp.utils.messageParsing.JsonToTableRow;
+import com.foglamp.utils.LoopingStatefulTimer;
+import com.foglamp.utils.EventFilter;
+import com.foglamp.utils.customFn.CreateKey;
+import com.foglamp.utils.customFn.RemoveKey;
+import com.foglamp.utils.messageParsing.FormatJson;
+import com.foglamp.utils.messageParsing.TableRowFormat;
+import com.foglamp.utils.messageParsing.GsonConvertToString;
+import com.google.api.services.pubsub.model.PubsubMessage;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import java.io.IOException;
@@ -34,13 +40,19 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.GroupByKey;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.Sessions;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionTuple;
+import org.apache.beam.sdk.values.TupleTag;
+import org.apache.beam.sdk.values.TupleTagList;
 import org.joda.time.Duration;
 
-public class IoTStreamBigQueryEvents {
+import org.apache.beam.sdk.io.TextIO;
+
+public class IoTStreamBigQueryTest {
 
   public static void main(String[] args) throws IOException {
 
@@ -49,7 +61,6 @@ public class IoTStreamBigQueryEvents {
 
     String destination_table = options.getOutputTable();
     String input_topic = options.getInputTopic();
-    int gap_size = options.getGapSize();
 
     Pipeline pipeline = Pipeline.create(options);
 
@@ -61,7 +72,7 @@ public class IoTStreamBigQueryEvents {
 
     PCollection<TableRow> messages_with_timer = messages
             .apply("Create key for element", ParDo.of(new CreateKey()))
-            .apply(ParDo.of(new LoopingStatefulTimer(gap_size)));
+            .apply(ParDo.of(new LoopingStatefulTimer()));
 
     TableSchema schema = BigQuerySchemaCreate.createSchema();
     messages_with_timer.apply(

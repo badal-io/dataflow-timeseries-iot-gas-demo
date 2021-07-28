@@ -64,6 +64,7 @@ public class IoTStreamBigQueryRaw {
     String input_topic = options.getInputTopic();
     String output_topic = options.getOutputTopic();
     String output_event_topic = options.getOutputEventTopic();
+    int timer_size = options.getTimerSize();
 
     Pipeline pipeline = Pipeline.create(options);
 
@@ -86,14 +87,16 @@ public class IoTStreamBigQueryRaw {
     PCollection<Iterable<TableRow>> message_strings = messages.apply("Format TableRows", ParDo.of(new TableRowFormat()));
     PCollection<TableRow> flat_rows = message_strings.apply(Flatten.iterables());
 
+    /*
     PCollection<TableRow> flat_rows_with_timer = flat_rows
             .apply("Create key for element", ParDo.of(new CreateKey()))
             .apply(ParDo.of(new LoopingStatefulTimer()));
+    */
 
     final TupleTag<TableRow> all_measurements = new TupleTag<TableRow>(){};
     final TupleTag<TableRow> event_measurements = new TupleTag<TableRow>(){};
 
-    PCollectionTuple results = EventFilter.FilterRows(flat_rows_with_timer, event_definitions, all_measurements, event_measurements);
+    PCollectionTuple results = EventFilter.FilterRows(flat_rows, event_definitions, all_measurements, event_measurements, timer_size);
   
     PCollection<TableRow> all_measurement_rows = results.get(all_measurements);
     PCollection<TableRow> event_measurement_rows = results.get(event_measurements);

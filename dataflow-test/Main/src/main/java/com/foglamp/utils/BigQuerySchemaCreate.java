@@ -32,23 +32,7 @@ public class BigQuerySchemaCreate {
                         .setType("STRING")
                         .setMode("REQUIRED"),
                     new TableFieldSchema()
-                        .setName("timestamp")
-                        .setType("TIMESTAMP")
-                        .setMode("REQUIRED"),
-                    new TableFieldSchema()
-                        .setName("property_measured")
-                        .setType("STRING")
-                        .setMode("REQUIRED"),
-                    new TableFieldSchema()
-                        .setName("value")
-                        .setType("FLOAT64")
-                        .setMode("REQUIRED"),
-                    new TableFieldSchema()
-                        .setName("units_of_measurement")
-                        .setType("STRING")
-                        .setMode("NULLABLE"),
-                    new TableFieldSchema()
-                        .setName("device_version")
+                        .setName("event_id")
                         .setType("STRING")
                         .setMode("NULLABLE")
                     ));

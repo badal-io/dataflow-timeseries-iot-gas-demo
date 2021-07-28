@@ -102,9 +102,7 @@ public class messageParsing {
           Iterator iterator_set = EntrySet.iterator();
           while (iterator_set.hasNext()) {
             Entry element = (Entry) iterator_set.next();
-            String element_key = (String) element.getKey();
-            
-            if (element_key != "ts" && element_key != "device_version") {
+            if (element.getKey() != "ts") {
               property_measured = (String) element.getKey();
               value = (Double) element.getValue();
             }
@@ -114,8 +112,7 @@ public class messageParsing {
                         .set("timestamp", map.get("ts"))
                         .set("value", value)
                         .set("property_measured", property_measured)
-                        .set("units_of_measurement", null)
-                        .set("device_version", map.get("device_version"));
+                        .set("units_of_measurement", null);
           TableRowList.add(new_row);
         }
       }
