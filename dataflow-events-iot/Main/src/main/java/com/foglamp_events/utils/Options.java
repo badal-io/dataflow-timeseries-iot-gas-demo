@@ -34,4 +34,10 @@ public interface Options extends PipelineOptions, StreamingOptions {
   String getOutputTable(); // "[project_id]:[dataset_id].[table_id]"
 
   void setOutputTable(String value);
+
+  @Description("Window gap duration in seconds")
+  @Required
+  int getGapSize();
+
+  void setGapSize(int value);
 }

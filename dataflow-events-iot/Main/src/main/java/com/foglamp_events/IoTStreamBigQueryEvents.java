@@ -50,6 +50,7 @@ public class IoTStreamBigQueryEvents {
 
     String destination_table = options.getOutputTable();
     String input_topic = options.getInputTopic();
+    int gap_size = options.getGapSize();
 
     Pipeline pipeline = Pipeline.create(options);
 
@@ -62,7 +63,7 @@ public class IoTStreamBigQueryEvents {
     PCollection<KV<String, TableRow>> keyed_messages =
         messages
             .apply("Create key for element", ParDo.of(new CreateKey()))
-            .apply(Window.into(Sessions.withGapDuration(Duration.standardSeconds(20))));
+            .apply(Window.into(Sessions.withGapDuration(Duration.standardSeconds(gap_size))));
 
     PCollection<KV<String, Iterable<TableRow>>> grouped_messages =
         keyed_messages.apply(GroupByKey.<String, TableRow>create());

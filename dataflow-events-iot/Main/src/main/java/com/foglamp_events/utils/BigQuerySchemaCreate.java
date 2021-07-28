@@ -32,12 +32,24 @@ public class BigQuerySchemaCreate {
                         .setType("STRING")
                         .setMode("NULLABLE"),
                     new TableFieldSchema()
-                        .setName("value")
-                        .setType("FLOAT64")
-                        .setMode("NULLABLE"),
-                    new TableFieldSchema()
                         .setName("window_id")
                         .setType("TIMESTAMP")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("event_type")
+                        .setType("STRING")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("timestamp")
+                        .setType("TIMESTAMP")
+                        .setMode("NULLABLE"),                        
+                    new TableFieldSchema()
+                        .setName("property_measured")
+                        .setType("STRING")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("value")
+                        .setType("FLOAT64")
                         .setMode("NULLABLE")));
     return schema;
   }

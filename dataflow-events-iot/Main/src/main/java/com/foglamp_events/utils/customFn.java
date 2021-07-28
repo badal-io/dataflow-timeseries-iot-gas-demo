@@ -32,7 +32,9 @@ public class customFn {
     @ProcessElement
     public void processElement(ProcessContext c) {
       TableRow row = c.element();
-      String key = (String) row.get("device_id");
+      String device_id = (String) row.get("device_id");
+      String property_measured = (String) row.get("property_measured");
+      String key = String.format("%s#%s", property_measured, device_id);
       c.output(KV.of(key, row));
     }
   }

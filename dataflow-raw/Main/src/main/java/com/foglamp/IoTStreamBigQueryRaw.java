@@ -20,10 +20,13 @@ package com.foglamp;
 import com.foglamp.utils.BigQuerySchemaCreate;
 import com.foglamp.utils.Options;
 import com.foglamp.utils.messageParsing.JsonToTableRow;
+import com.foglamp.utils.LoopingStatefulTimer;
+import com.foglamp.utils.EventFilter;
+import com.foglamp.utils.customFn.CreateKey;
+import com.foglamp.utils.customFn.RemoveKey;
 import com.foglamp.utils.messageParsing.FormatJson;
 import com.foglamp.utils.messageParsing.TableRowFormat;
 import com.foglamp.utils.messageParsing.GsonConvertToString;
-import com.foglamp.utils.customFn.EventFilter;
 import com.google.api.services.pubsub.model.PubsubMessage;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -37,10 +40,14 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.GroupByKey;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.Sessions;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionTuple;
+import org.apache.beam.sdk.values.TupleTag;
+import org.apache.beam.sdk.values.TupleTagList;
 import org.joda.time.Duration;
 
 import org.apache.beam.sdk.io.TextIO;
@@ -52,12 +59,22 @@ public class IoTStreamBigQueryRaw {
     Options options = PipelineOptionsFactory.fromArgs(args).as(Options.class);
     options.setStreaming(true);
 
+    String input_table = options.getInputTable();
     String destination_table = options.getOutputTable();
     String input_topic = options.getInputTopic();
     String output_topic = options.getOutputTopic();
     String output_event_topic = options.getOutputEventTopic();
 
     Pipeline pipeline = Pipeline.create(options);
+
+    String query = "SELECT event_type, device_id, property_measured, condition, baseline_value FROM `%s`, UNNEST(device_id) device_id";
+    PCollection<TableRow> event_definitions = 
+      pipeline
+        .apply(
+          "Read Event Definitions from BigQuery", 
+          BigQueryIO.readTableRows()
+            .fromQuery(String.format(query, input_table))
+            .usingStandardSql());
 
     PCollection<TableRow> messages = null;
     messages =
@@ -68,21 +85,32 @@ public class IoTStreamBigQueryRaw {
 
     PCollection<Iterable<TableRow>> message_strings = messages.apply("Format TableRows", ParDo.of(new TableRowFormat()));
     PCollection<TableRow> flat_rows = message_strings.apply(Flatten.iterables());
-    PCollection<TableRow> event_rows = flat_rows.apply("Detect Events", ParDo.of(new EventFilter()));
+
+    PCollection<TableRow> flat_rows_with_timer = flat_rows
+            .apply("Create key for element", ParDo.of(new CreateKey()))
+            .apply(ParDo.of(new LoopingStatefulTimer()));
+
+    final TupleTag<TableRow> all_measurements = new TupleTag<TableRow>(){};
+    final TupleTag<TableRow> event_measurements = new TupleTag<TableRow>(){};
+
+    PCollectionTuple results = EventFilter.FilterRows(flat_rows_with_timer, event_definitions, all_measurements, event_measurements);
+  
+    PCollection<TableRow> all_measurement_rows = results.get(all_measurements);
+    PCollection<TableRow> event_measurement_rows = results.get(event_measurements);
 
     TableSchema schema = BigQuerySchemaCreate.createSchema();
-    flat_rows.apply(
+    all_measurement_rows.apply(
         BigQueryIO.writeTableRows()
             .withSchema(schema)
             .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(WriteDisposition.WRITE_APPEND)
             .to(destination_table));
 
-    PCollection<String> output_raw = flat_rows.apply("Convert to String", ParDo.of(new GsonConvertToString()));
-    PCollection<String> output_events = event_rows.apply("Convert to String (Events)", ParDo.of(new GsonConvertToString()));
+    PCollection<String> output_raw = all_measurement_rows.apply("Convert to String", ParDo.of(new GsonConvertToString()));
+    PCollection<String> output_events = event_measurement_rows.apply("Convert to String (Events)", ParDo.of(new GsonConvertToString()));
     
-    output_raw.apply("Write to Pub/Sub", PubsubIO.writeStrings().to(output_topic)); 
-    output_events.apply("Write to Pub/Sub (Events)", PubsubIO.writeStrings().to(output_event_topic)); 
+    output_raw.apply("Write to PubSub", PubsubIO.writeStrings().to(output_topic)); 
+    output_events.apply("Write to PubSub (Events)", PubsubIO.writeStrings().to(output_event_topic)); 
 
     pipeline.run().waitUntilFinish();
   }
