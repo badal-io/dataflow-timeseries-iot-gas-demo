@@ -1,0 +1,10 @@
+[
+    {
+        "name": "asset_id",
+        "type": "STRING"
+    },
+    {
+        "name": "asset_type",
+        "type": "STRING"
+    }
+]

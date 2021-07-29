@@ -87,16 +87,14 @@ public class IoTStreamBigQueryRaw {
     PCollection<Iterable<TableRow>> message_strings = messages.apply("Format TableRows", ParDo.of(new TableRowFormat()));
     PCollection<TableRow> flat_rows = message_strings.apply(Flatten.iterables());
 
-    /*
     PCollection<TableRow> flat_rows_with_timer = flat_rows
             .apply("Create key for element", ParDo.of(new CreateKey()))
-            .apply(ParDo.of(new LoopingStatefulTimer()));
-    */
-
+            .apply(ParDo.of(new LoopingStatefulTimer(timer_size)));
+    
     final TupleTag<TableRow> all_measurements = new TupleTag<TableRow>(){};
     final TupleTag<TableRow> event_measurements = new TupleTag<TableRow>(){};
 
-    PCollectionTuple results = EventFilter.FilterRows(flat_rows, event_definitions, all_measurements, event_measurements, timer_size);
+    PCollectionTuple results = EventFilter.FilterRows(flat_rows_with_timer, event_definitions, all_measurements, event_measurements);
   
     PCollection<TableRow> all_measurement_rows = results.get(all_measurements);
     PCollection<TableRow> event_measurement_rows = results.get(event_measurements);
@@ -115,6 +113,6 @@ public class IoTStreamBigQueryRaw {
     output_raw.apply("Write to PubSub", PubsubIO.writeStrings().to(output_topic)); 
     output_events.apply("Write to PubSub (Events)", PubsubIO.writeStrings().to(output_event_topic)); 
 
-    pipeline.run().waitUntilFinish();
+    pipeline.run();
   }
 }

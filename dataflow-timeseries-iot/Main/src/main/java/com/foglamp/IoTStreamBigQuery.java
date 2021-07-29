@@ -87,6 +87,6 @@ public class IoTStreamBigQuery {
                 .withWriteDisposition(WriteDisposition.WRITE_APPEND)
                 .to(destination_table));
 
-    pipeline.run().waitUntilFinish();
+    pipeline.run();
   }
 }

@@ -38,7 +38,7 @@ import org.joda.time.Instant;
 import com.google.protobuf.util.Timestamps;
 
 
-public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, TableRow>> {
+public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, TableRow> {
 
     int timerExpiry;
 
@@ -49,6 +49,9 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, 
     @StateId("key")
     private final StateSpec<ValueState<String>> key = StateSpecs.value(StringUtf8Coder.of());
 
+    @StateId("deviceVersion")
+    private final StateSpec<ValueState<String>> deviceVersion = StateSpecs.value(StringUtf8Coder.of());
+
     @TimerId("loopingTimer")
     private final TimerSpec loopingTime = TimerSpecs.timer(TimeDomain.EVENT_TIME);
 
@@ -56,7 +59,13 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, 
     public void process(
         ProcessContext c, 
         @StateId("key") ValueState<String> key,
+        @StateId("deviceVersion") ValueState<String> deviceVersion,
         @TimerId("loopingTimer") Timer loopingTimer) {
+
+            TableRow row = c.element().getValue();
+
+            String newDeviceVersion = (String) row.get("device_version");
+            String oldDeviceVersion = deviceVersion.read();
 
             Instant nextTimerTimeBasedOnCurrentElement = c.timestamp().plus(Duration.standardSeconds(timerExpiry));
 
@@ -66,29 +75,52 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, KV<String, 
                 key.write(c.element().getKey());
             }
 
-            c.output(c.element());
+            if (oldDeviceVersion == null) {
+                deviceVersion.write(newDeviceVersion);
+            } else if ( !newDeviceVersion.equals(oldDeviceVersion) ) {
+                Instant timestamp = c.timestamp();
+                String ts = timestamp.toString();
+
+                String comment = String.format("Device version changed from %s to %s", oldDeviceVersion, newDeviceVersion);
+
+                TableRow output = new TableRow()
+                    .set("device_id", c.element().getKey())
+                    .set("event_type", "Device Version Change")
+                    .set("timestamp", ts)
+                    .set("value", null)
+                    .set("severity","Low")
+                    .set("property_measured", null)
+                    .set("device_version", newDeviceVersion)
+                    .set("comments", comment);
+                deviceVersion.write(newDeviceVersion);
+                c.output(output);     
+            }
+
+            c.output(row);
     }
 
     @OnTimer("loopingTimer")
     public void onTimer(
         OnTimerContext c,
         @StateId("key") ValueState<String> key,
+        @StateId("deviceVersion") ValueState<String> deviceVersion,
         @TimerId("loopingTimer") Timer loopingTimer) {
 
-            String[] key_parts = key.read().split("#");
-            String property_measured = key_parts[0];
-            String device_id = key_parts[1];
+            String device_id = key.read();
 
             Instant timestamp = c.timestamp();
             String ts = timestamp.toString();
 
             TableRow new_row = new TableRow()
                 .set("device_id", device_id)
+                .set("event_type", "Device Error")
                 .set("timestamp", ts)
                 .set("value", null)
-                .set("property_measured", property_measured)
-                .set("units_of_measurement", null);
-            c.output(KV.of(key.read(), new_row));
+                .set("severity","High")
+                .set("property_measured", null)
+                .set("comments", "Connectivity Lost")
+                .set("device_version", deviceVersion.read());
+            c.output(new_row);
 
             Instant nextTimer = c.timestamp().plus(Duration.standardSeconds(timerExpiry));
 

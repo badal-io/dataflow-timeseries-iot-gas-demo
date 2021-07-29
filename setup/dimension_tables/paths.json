@@ -1,0 +1,8 @@
+{"asset_id":"Tank_01","field_meter_tag":"M_1000","designation":"inlet"}
+{"asset_id":"Facility_01","field_meter_tag":"M_1000","designation":"inlet"}
+{"asset_id":"Tank_01","field_meter_tag":"M_1001","designation":"inlet"}
+{"asset_id":"Facility_01","field_meter_tag":"M_1001","designation":"inlet"}
+{"asset_id":"P_01","field_meter_tag":"M_1002","designation":"inlet"}
+{"asset_id":"Tank_01","field_meter_tag":"M_1002","designation":"outlet"}
+{"asset_id":"P_01","field_meter_tag":"M_1003","designation":"outlet"}
+{"asset_id":"Facility_01","field_meter_tag":"M_1003","designation":"outlet"}

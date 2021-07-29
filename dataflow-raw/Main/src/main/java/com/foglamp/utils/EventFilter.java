@@ -53,14 +53,10 @@ public class EventFilter {
         PCollection<TableRow> flat_rows,
         PCollection<TableRow> event_definitions,
         TupleTag<TableRow> all_measurements,
-        TupleTag<TableRow> event_measurements,
-        int timer_size
+        TupleTag<TableRow> event_measurements
         ) {
 
-            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows
-                .apply(ParDo.of(new GenerateKeys()))
-                .apply(ParDo.of(new LoopingStatefulTimer(timer_size)));
-
+            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows.apply(ParDo.of(new GenerateKeys()));
             PCollection<KV<String, TableRow>> event_definitions_keyed = event_definitions.apply(ParDo.of(new GenerateKeys()));
 
             PCollectionView<Map<String, Iterable<TableRow>>> view = event_definitions_keyed.apply(View.<String, TableRow>asMultimap());
@@ -78,12 +74,17 @@ public class EventFilter {
                         String property_measured = (String) row.get("property_measured");
                         Double value = (Double) row.get("value");
 
-                        if (value == null) {
-                            row.set("event_type", "Device Error");
-                            c.output(event_measurements, row);
-                        }
+                        String row_event_type = (String) row.get("event_type");
 
-                        else {
+                        if (row_event_type == "Device Version Change") {
+                            c.output(event_measurements, row);
+                        } else if (row_event_type == "Device Error") {
+                            c.output(event_measurements, row);
+                            row.remove("event_type");
+                            row.remove("severity");
+                            row.remove("comments");
+                            c.output(row);
+                        } else {
 
                             c.output(row);
 
@@ -91,12 +92,14 @@ public class EventFilter {
                                 for (TableRow entry : EventDefinitionRows) {
                                     String event_type = (String) entry.get("event_type");
                                     String condition = (String) entry.get("condition");
+                                    String severity = (String) entry.get("severity");
                                     Double baseline_value = (Double) entry.get("baseline_value");
                                     
                                     Boolean evaluation = ConditionEvaluator.Evaluate(value, baseline_value, condition);
 
                                     if (evaluation == true) {
                                         row.set("event_type", event_type);
+                                        row.set("severity", severity);
                                         c.output(event_measurements, row);
                                     }
                                 }

@@ -40,6 +40,18 @@ public class BigQuerySchemaCreate {
                         .setType("STRING")
                         .setMode("NULLABLE"),
                     new TableFieldSchema()
+                        .setName("severity")
+                        .setType("STRING")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("device_version")
+                        .setType("STRING")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("comments")
+                        .setType("STRING")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
                         .setName("timestamp")
                         .setType("TIMESTAMP")
                         .setMode("NULLABLE"),                        
