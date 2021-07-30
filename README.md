@@ -23,7 +23,7 @@ export rsaPath=<Path to the FogLAMP RSA public key>
 ### BigQuery Dimension Tables
 The ```./setup/dimension_tables``` directory contains JSON files with sample tables to get you started. You can import them by executing the ```setup_bq.sh``` script.
 ### Building the Java Projects
-Each pipeline is packaged separately. You can run ```setup_dataflow.sh``` to compile and execute the pipelines with Dataflow as the runner. The script will also create all necessary Pub/Sub topics. Additionally, you can pass the ```templateLocation``` parameter in each command to stage reusable pipeline templates on Google Cloud Storage, and  ```--enableStreamingEngine``` if you wish to enable autoscaling. You may also need to adjust the windowing pipeline options depending on the rate at which your IoT simulator is transmitting data.
+Each pipeline is packaged separately. You can run ```setup_dataflow.sh``` to compile and execute the pipelines with Dataflow as the runner. The script will also create all necessary Pub/Sub topics. Additionally, you can pass the ```templateLocation``` parameter in each command to stage reusable pipeline templates on Google Cloud Storage, and  ```enableStreamingEngine``` if you wish to enable autoscaling. You may also need to adjust the windowing pipeline options depending on the rate at which your IoT simulator is transmitting data.
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:
