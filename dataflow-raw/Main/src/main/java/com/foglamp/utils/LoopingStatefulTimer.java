@@ -89,7 +89,7 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, TableRow> {
                     .set("timestamp", ts)
                     .set("value", null)
                     .set("severity","Low")
-                    .set("property_measured", null)
+                    .set("property_measured", "Device Version Change")
                     .set("device_version", newDeviceVersion)
                     .set("comments", comment);
                 deviceVersion.write(newDeviceVersion);
@@ -117,7 +117,7 @@ public class LoopingStatefulTimer extends DoFn<KV<String, TableRow>, TableRow> {
                 .set("timestamp", ts)
                 .set("value", null)
                 .set("severity","High")
-                .set("property_measured", null)
+                .set("property_measured", "Device Error")
                 .set("comments", "Connectivity Lost")
                 .set("device_version", deviceVersion.read());
             c.output(new_row);

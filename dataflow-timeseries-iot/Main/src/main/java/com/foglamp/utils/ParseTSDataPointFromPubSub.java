@@ -38,15 +38,17 @@ public class ParseTSDataPointFromPubSub extends DoFn<TableRow, TSDataPoint> {
     String property = (String) input.get("property_measured");
     Double value = (Double) input.get("value");
 
-    TSKey key = TSKey.newBuilder().setMajorKey(device_id).setMinorKeyString(property).build();
+    if (property != null && value != null) {
+      TSKey key = TSKey.newBuilder().setMajorKey(device_id).setMinorKeyString(property).build();
 
-    TSDataPoint dataPoint =
-        TSDataPoint.newBuilder()
-            .setKey(key)
-            .setTimestamp(Timestamps.fromMillis(sourceTimestamp.getMillis()))
-            .setData(Data.newBuilder().setDoubleVal(value))
-            .build();
+      TSDataPoint dataPoint =
+          TSDataPoint.newBuilder()
+              .setKey(key)
+              .setTimestamp(Timestamps.fromMillis(sourceTimestamp.getMillis()))
+              .setData(Data.newBuilder().setDoubleVal(value))
+              .build();
 
-    o.output(dataPoint);
+      o.output(dataPoint);
+    }
   }
 }
