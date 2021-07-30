@@ -1,13 +1,5 @@
 #!/bin/bash
 
-export DATASET="foglamp_demo"
-export PROJECT="sandbox-keyera-poc"
-export REGION="us-central1"
-export stagingLocation="gs://foglamp/dataflow/staging"
-export tempLocation="gs://foglamp/dataflow/temp"
-
-export GOOGLE_APPLICATION_CREDENTIALS="/home/michail/compute-key.json"
-
 #gcloud pubsub topics create foglamp-demo --project=${PROJECT}
 export topicIoT="foglamp-demo"
 

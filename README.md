@@ -1,8 +1,31 @@
 # Dataflow IoT Timeseries Demo
 ## Overview
-This repository provides a set of Apache Beam pipelines for processing streaming times-series IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics.
+This repository provides a set of Apache Beam pipelines for processing streaming IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics.
+
+![IoT Demo GCP Architecture](images/IoT_Demo_Diagram.png?raw=true "IoT Demo GCP Architecture")
+
+## Getting Started
+### Requirements
+- Java 8
+- FogLAMP
+- OPC UA Simulator (e.g. [Prosys](https://downloads.prosysopc.com/opc-ua-simulation-server-downloads.php))
+### Environment Variables
+The following variables need to be set:
+```
+export DATASET=<BigQuery dataset>
+export PROJECT=<project>
+export REGION=<region>
+export stagingLocation=<GCS staging bucket>
+export tempLocation=<GCS temp bucket>
+export bqImportBucket=<GCS buket for staging JSON files for BigQuery>
+export rsaPath=<Path to the FogLAMP RSA public key>
+```
+### BigQuery Dimension Tables
+The ```./setup/dimension_tables``` directory contains JSON files with sample tables to get you started. You can import them by executing the ```setup_bq.sh``` script.
+### Building the Java Projects
+Each pipeline is packaged separately. You can run ```setup_dataflow.sh``` to compile and execute the pipelines with Dataflow as the runner. The script will also create all necessary Pub/Sub topics. Additionally, you can pass the ```templateLocation``` parameter in each command to stage reusable pipeline templates on Google Cloud Storage, and  ```--enableStreamingEngine``` if you wish to enable autoscaling. You may also need to adjust the windowing pipeline options depending on the rate at which your IoT simulator is transmitting data.
 ## Apache Beam Pipelines
-### [Processing of Raw IoT Sensor Data](https://github.com/foglamp/FogLAMP)
+### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:
 - **Inputs**:
     1. Pub/Sub topic with raw sensor data from FogLAMP (unbounded main-input)
@@ -17,7 +40,7 @@ The first pipeline is intended to be the point-of-entry for the raw IoT data. Th
 
 ![Looping Stateful Timer (1)](images/looping_timer_1.png?raw=true "Looping Stateful Timer")
 
-### [Processing of IoT Sensor Events](https://github.com/foglamp/FogLAMP)
+### [Processing of IoT Sensor Events](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-events-iot)
 This pipeline is designed to process the sensor event data emitted from the first pipeline. The pipeline consists of the following components:
 - **Inputs**:
     - Pub/Sub topic with sensor event data from the first pipeline
@@ -28,8 +51,8 @@ This pipeline is designed to process the sensor event data emitted from the firs
 
 ![Looping Stateful Timer (2)](images/looping_timer_2.png?raw=true "Looping Stateful Timer")
 
-### [Processing of Time-series Transforms](https://github.com/foglamp/FogLAMP)
-The final pipeline is based on the Dataflow [Timeseries Streaming]() library to compute metrics across several time periods, such as the relative strength index (RSI) and moving average (MA). The pipeline consists of the following components:
+### [Processing of Time-series Transforms](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-timeseries-iot)
+The final pipeline is based on the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library to compute metrics across several time periods, such as the relative strength index (RSI) and moving average (MA). The pipeline consists of the following components:
 - **Inputs**:
     - Pub/Sub topic with formatted sensor data from the first pipeline
 - The custom method ```ParseTSDataPointFromPubSub``` transforms the Pub/Sub messages to the native ```TSDataPoint``` object of the Timeseries Library. The primary key is set to the ```device-Id```, whereas the secondary key is set to the ```property_measured``` in each data point (e.g. mass density, temperature, etc.).

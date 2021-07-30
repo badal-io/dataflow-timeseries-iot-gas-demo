@@ -1,11 +1,5 @@
 #!/bin/bash
 
-export REGION="us-central1"
-export PROJECT="sandbox-keyera-poc"
-export rsaPath="/home/michail/rsa_public.pem"
-
-export topicIoT="foglamp-demo"
-
 gcloud iot registries create foglamp-registry \
     --project=${PROJECT} \
     --region=${REGION} \
