@@ -5,8 +5,8 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 ### [Processing of Raw IoT Sensor Data](https://github.com/foglamp/FogLAMP)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:
 - **Inputs**:
-&nbsp;&nbsp;&nbsp;&nbsp;1\. Pub/Sub topic with raw sensor data from FogLAMP (unbounded main-input)
-&nbsp;&nbsp;&nbsp;&nbsp;2\. BigQuery table with "event frame" definitions (bounded side-input)
+    1. Pub/Sub topic with raw sensor data from FogLAMP (unbounded main-input)
+    2. BigQuery table with "event frame" definitions (bounded side-input)
 - Format Pub/Sub messages to key/value pairs where they key is the IoT device-Id and the value is a BigQuery TableRow object
 - Process the key/value pairs through a stateful, looping timer. The timer expires after a user-defined duration when the ```@ProcessElement DoFn``` hasn't received any new elements for a given key, thus enabling the detection of devices that have gone silent and potentially lost function. Upon expiry, the ``@OnTimer DoFn`` resets the timer for that key and outputs a TableRow with the key / device-id. 
 - The ```EventFilter``` method describes a ```ParDo``` with two output ```PCollection```. It compares the key/value pairs against the conditions defined in the side-input table from BigQuery, and if they satisfy the conditions, the corresponding ```event_type``` field is appened to the TableRow and then they are outputted with an ```event_measurements``` tag, whereas all measurements are outputted with the ```all_measurements``` tag. The TableRows from the looping timer when a sensors has gone "silent" are also outputted here with the ```event_measurements``` tag.
