@@ -26,6 +26,8 @@ This pipeline is designed to process the sensor event data emitted from the firs
 - **Outputs**:
     - The ```PCollection``` is inserted to a BigQuery table containing all "event" IoT sensor data
 
+![Looping Stateful Timer (2)](images/looping_timer_2.png?raw=true "Looping Stateful Timer")
+
 ### [Processing of Time-series Transforms](https://github.com/foglamp/FogLAMP)
 The final pipeline is based on the Dataflow [Timeseries Streaming]() library to compute metrics across several time periods, such as the relative strength index (RSI) and moving average (MA). The pipeline consists of the following components:
 - **Inputs**:
