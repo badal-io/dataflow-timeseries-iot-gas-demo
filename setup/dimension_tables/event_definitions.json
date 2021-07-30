@@ -1,0 +1,2 @@
+{"event_type":"High Pump Temperature","device_id":["Coriolis_04"],"property_measured":"temperature","condition":"\u003e","baseline_value":30.0,"severity":"High"}
+{"event_type":"Low Flowrate","device_id":["Coriolis_01","Coriolis_02","Coriolis_03","Coriolis_04"],"property_measured":"flowrate","condition":"\u003c","baseline_value":10.0,"severity":"Medium"}
