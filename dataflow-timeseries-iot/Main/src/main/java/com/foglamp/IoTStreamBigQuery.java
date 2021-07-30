@@ -48,9 +48,6 @@ public class IoTStreamBigQuery {
     TimeSeriesOptions options = PipelineOptionsFactory.fromArgs(args).as(TimeSeriesOptions.class);
 
     options.setAppName("TimeSeriesIoTDataflow");
-    //options.setTypeOneComputationsLengthInSecs(5);
-    //options.setTypeTwoComputationsLengthInSecs(30);
-    // options.setOutputTimestepLengthInSecs(30);
     options.setGapFillEnabled(false);
     options.setTypeOneBasicMetrics(ImmutableList.of("typeone.Sum", "typeone.Min", "typeone.Max"));
     options.setTypeTwoBasicMetrics(
@@ -67,10 +64,10 @@ public class IoTStreamBigQuery {
         pipeline
             .apply(
                 "Pull PubSub Messages", PubsubIO.readStrings().fromTopic(options.getInputTopic()))
-            .apply("Convert PubSub messages to TableRow Type", new JsonToTableRow());
+            .apply("To TableRows", new JsonToTableRow());
 
     PCollection<TSDataPoint> stream =
-        messages.apply("convert to TS Data Point", ParDo.of(new ParseTSDataPointFromPubSub()));
+        messages.apply("To TS Data Point", ParDo.of(new ParseTSDataPointFromPubSub()));
 
     GenerateComputations generateComputations =
         GenerateComputations.fromPiplineOptions(options).build();
@@ -81,6 +78,7 @@ public class IoTStreamBigQuery {
         .apply(Values.create())
         .apply(new TSAccumToRowPivot())
         .apply(
+            "Write to BigQuery",
             BigQueryIO.<Row>write()
                 .useBeamSchema()
                 .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)

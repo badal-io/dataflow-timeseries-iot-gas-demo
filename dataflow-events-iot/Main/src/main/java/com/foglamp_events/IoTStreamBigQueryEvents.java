@@ -57,14 +57,15 @@ public class IoTStreamBigQueryEvents {
     messages =
         pipeline
             .apply("Pull PubSub Messages", PubsubIO.readStrings().fromTopic(input_topic))
-            .apply("Convert PubSub messages to TableRow Type", new JsonToTableRow());
+            .apply("To TableRows", new JsonToTableRow());
 
     PCollection<TableRow> messages_with_timer = messages
-            .apply("Create key for element", ParDo.of(new CreateKey()))
-            .apply(ParDo.of(new LoopingStatefulTimer(gap_size)));
+            .apply("Device-Id/Event-type Keys", ParDo.of(new CreateKey()))
+            .apply("Looping Stateful Timer", ParDo.of(new LoopingStatefulTimer(gap_size)));
 
     TableSchema schema = BigQuerySchemaCreate.createSchema();
     messages_with_timer.apply(
+        "Write to BigQuery",
         BigQueryIO.writeTableRows()
             .withSchema(schema)
             .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)

@@ -56,10 +56,10 @@ public class EventFilter {
         TupleTag<TableRow> event_measurements
         ) {
 
-            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows.apply(ParDo.of(new GenerateKeys()));
-            PCollection<KV<String, TableRow>> event_definitions_keyed = event_definitions.apply(ParDo.of(new GenerateKeys()));
+            PCollection<KV<String, TableRow>> flat_rows_keyed = flat_rows.apply("Device-Id/Property Keys", ParDo.of(new GenerateKeys()));
+            PCollection<KV<String, TableRow>> event_definitions_keyed = event_definitions.apply("Device-Id/Property Keys", ParDo.of(new GenerateKeys()));
 
-            PCollectionView<Map<String, Iterable<TableRow>>> view = event_definitions_keyed.apply(View.<String, TableRow>asMultimap());
+            PCollectionView<Map<String, Iterable<TableRow>>> view = event_definitions_keyed.apply("As Multimap", View.<String, TableRow>asMultimap());
             
             PCollectionTuple results = 
                 flat_rows_keyed.apply("Detect Events", ParDo

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DATASET="foglamp_demo_test"
+export DATASET="foglamp_demo"
 export PROJECT="sandbox-keyera-poc"
 export REGION="us-central1"
 export stagingLocation="gs://foglamp/dataflow/staging"
