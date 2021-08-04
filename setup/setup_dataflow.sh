@@ -7,7 +7,7 @@ cd ./dataflow-events-iot
                   --project=${PROJECT} \
                   --region=${REGION} \
                   --stagingLocation=${STAGING_LOCATION} \
-                  --tempLocation=${tempLocation} \
+                  --tempLocation=${TEMP_LOCATION} \
                   --gapSize=60 \
                   --inputTopic=projects/${PROJECT}/topics/foglamp-demo-events \
                   --outputTable=${PROJECT}:${DATASET}.measurements_raw_events"
