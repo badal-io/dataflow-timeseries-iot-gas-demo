@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gsutil cp ./setup/dimension_tables/*.json ${bqImportBucket}
+gsutil cp ./setup/dimension_tables/*.json ${BQ_IMPORT_BUCKET}
 
 bq --location=us mk \
     --dataset \

@@ -1,18 +1,12 @@
 #!/bin/bash
-
-#gcloud pubsub topics create foglamp-demo --project=${PROJECT}
-export topicIoT="foglamp-demo"
-
-#gcloud pubsub topics create foglamp-demo-raw --project=${PROJECT}
-#gcloud pubsub topics create foglamp-demo-events --project=${PROJECT}
-
+cd ~/dataflow-timeseries-iot-gas-demo
 cd ./dataflow-events-iot
 ./gradlew clean execute \
      -Dexec.mainClass=com.foglamp_events.IoTStreamBigQueryEvents \
      -Dexec.args="--runner=DataflowRunner \
                   --project=${PROJECT} \
                   --region=${REGION} \
-                  --stagingLocation=${stagingLocation} \
+                  --stagingLocation=${STAGING_LOCATION} \
                   --tempLocation=${tempLocation} \
                   --gapSize=60 \
                   --inputTopic=projects/${PROJECT}/topics/foglamp-demo-events \
@@ -25,8 +19,8 @@ cd ./dataflow-raw
      -Dexec.args="--runner=DataflowRunner \
                   --project=${PROJECT} \
                   --region=${REGION} \
-                  --stagingLocation=${stagingLocation} \
-                  --tempLocation=${tempLocation} \
+                  --stagingLocation=${STAGING_LOCATION} \
+                  --tempLocation=${TEMP_LOCATION} \
                   --timerSize=30 \
                   --inputTopic=projects/${PROJECT}/topics/foglamp-demo \
                   --outputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \
@@ -41,8 +35,8 @@ cd ./dataflow-timeseries-iot
      -Dexec.args="--runner=DataflowRunner \
                   --project=${PROJECT} \
                   --region=${REGION} \
-                  --stagingLocation=${stagingLocation} \
-                  --tempLocation=${tempLocation} \
+                  --stagingLocation=${STAGING_LOCATION} \
+                  --tempLocation=${TEMP_LOCATION} \
                   --typeOneComputationsLengthInSecs=60 \
                   --typeTwoComputationsLengthInSecs=600 \
                   --inputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \
@@ -53,8 +47,8 @@ cd ./dataflow-timeseries-iot
      -Dexec.args="--runner=DataflowRunner \
                   --project=${PROJECT} \
                   --region=${REGION} \
-                  --stagingLocation=${stagingLocation} \
-                  --tempLocation=${tempLocation} \
+                  --stagingLocation=${STAGING_LOCATION} \
+                  --tempLocation=${TEMP_LOCATION} \
                   --typeOneComputationsLengthInSecs=600 \
                   --typeTwoComputationsLengthInSecs=3600 \
                   --inputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \

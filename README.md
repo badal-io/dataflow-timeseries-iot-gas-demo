@@ -12,16 +12,27 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 ### Environment Variables
 The following variables need to be set:
 ```
-export DATASET=<BigQuery dataset>
+export DATASET=<BigQuery dataset for storing the demo tables>
 export PROJECT=<project>
 export REGION=<region>
-export stagingLocation=<GCS staging bucket>
-export tempLocation=<GCS temp bucket>
-export bqImportBucket=<GCS buket for staging JSON files for BigQuery>
-export rsaPath=<Path to the FogLAMP RSA public key>
+export STAGING_LOCATION=<Dataflow GCS staging bucket>
+export TEMP_LOCATION=<Dataflow GCS temp bucket>
+export BQ_IMPORT_BUCKET=<GCS buket for staging JSON files for BigQuery>
+export GOOGLE_APPLICATION_CREDENTIALS=<Path to GCP service account>
 ```
+### Set up VM
+Run setup_vm.sh
+Go to https://remotedesktop.google.com/headless to setup remote desktop
+ip addr show ens4 | grep -Po 'inet \K[\d.]+'
+Open Prosys and Foglamp UI
+
 ### BigQuery Dimension Tables
 The ```./setup/dimension_tables``` directory contains JSON files with sample tables to get you started. You can import them by executing the ```setup_bq.sh``` script.
+
+### Setup FogLAMP
+Rut setup_iot.sh
+Create north gcp (rsa_public)
+Create south opc ua 
 ### Building the Java Projects
 Each pipeline is packaged separately. You can run ```setup_dataflow.sh``` to compile and execute the pipelines with Dataflow as the runner. The script will also create all necessary Pub/Sub topics. Additionally, you can pass the ```templateLocation``` parameter in each command to stage reusable pipeline templates on Google Cloud Storage, and  ```enableStreamingEngine``` if you wish to enable autoscaling. You may also need to adjust the windowing pipeline options depending on the rate at which your IoT simulator is transmitting data.
 ## Apache Beam Pipelines
