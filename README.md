@@ -11,14 +11,14 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 ### Setting up the Demo
-Executing Terraform will provision the following GCP resources:
+<b>Executing Terraform will provision the following GCP resources:</b>
 - A virtual machine installed with FogLAMP, Prosys OPC UA server simulator, and Google Chrome Remote Desktop
 - An IoT core registry and telemetry device
 - Three Pub/Sub topics (```foglamp-demo```, ```foglamp-demo-raw```, and ```foglamp-demo-events```)
 - Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
-- Four Dataflow Jobs
-<br> 
+- Four Dataflow Jobs  
+
 Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.
 <br> 
 :exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.
