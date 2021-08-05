@@ -19,9 +19,9 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
 - Four Dataflow Jobs  
 
-Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.
-<br> 
-:exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.
+Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.  
+
+:exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.  
 
 Follow the following steps to deploy the resources using Terraform:
 1. Clone the repository to your local machine:
