@@ -10,6 +10,10 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# SSH keys
+*.pub
+*
+
 # Package Files #
 *.war
 *.nar
