@@ -6,35 +6,36 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 
 ## Getting Started
 ### Requirements
+- A GCP project (to create one see [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects))
 - Java 8
-- FogLAMP
-- OPC UA Simulator (e.g. [Prosys](https://downloads.prosysopc.com/opc-ua-simulation-server-downloads.php))
-### Environment Variables
-The following variables need to be set:
-```
-export DATASET=<BigQuery dataset for storing the demo tables>
-export PROJECT=<project>
-export REGION=<region>
-export STAGING_LOCATION=<Dataflow GCS staging bucket>
-export TEMP_LOCATION=<Dataflow GCS temp bucket>
-export BQ_IMPORT_BUCKET=<GCS buket for staging JSON files for BigQuery>
-export GOOGLE_APPLICATION_CREDENTIALS=<Path to GCP service account>
-```
-### Set up VM
-Run setup_vm.sh
-Go to https://remotedesktop.google.com/headless to setup remote desktop
-ip addr show ens4 | grep -Po 'inet \K[\d.]+'
-Open Prosys and Foglamp UI
+- [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
-### BigQuery Dimension Tables
-The ```./setup/dimension_tables``` directory contains JSON files with sample tables to get you started. You can import them by executing the ```setup_bq.sh``` script.
+### Setting up the Demo
+Executing Terraform will provision the following GCP resources:
+- A virtual machine installed with FogLAMP, Prosys OPC UA server simulator, and Google Chrome Remote Desktop
+- An IoT core registry and telemetry device
+- Three Pub/Sub topics (```foglamp-demo```, ```foglamp-demo-raw```, and ```foglamp-demo-events```)
+- Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
+- A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
+- Four Dataflow Jobs
+Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.
+```:exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.```
+1. Clone the repository to your local machine:
+```git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git```
+2. Navigate to the Terraform directory:
+```cd ./terragorm```
+3. Edit the ```variables.tfvars``` file to configure the Terraform input variables with your values
+4. Add your GCP credentials:
+From the Cloud Console, download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:
+```export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}```
+Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP. 
+5. Execute Terraform:
+```
+terraform init 
+terraform apply -var-file="variables.tfvars
+```
+```:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources```
 
-### Setup FogLAMP
-Rut setup_iot.sh
-Create north gcp (rsa_public)
-Create south opc ua 
-### Building the Java Projects
-Each pipeline is packaged separately. You can run ```setup_dataflow.sh``` to compile and execute the pipelines with Dataflow as the runner. The script will also create all necessary Pub/Sub topics. Additionally, you can pass the ```templateLocation``` parameter in each command to stage reusable pipeline templates on Google Cloud Storage, and  ```enableStreamingEngine``` if you wish to enable autoscaling. You may also need to adjust the windowing pipeline options depending on the rate at which your IoT simulator is transmitting data.
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:

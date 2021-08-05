@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #Part 1: install Chrome remote desktop
+sudo apt-get -y update
+sudo apt-get -y upgrade   
+
 sudo apt install --assume-yes wget
 wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
 sudo dpkg --install chrome-remote-desktop_current_amd64.deb
 sudo apt install --assume-yes --fix-broken
-
-sudo apt-get -y update
-sudo apt-get -y upgrade   
      
 sudo DEBIAN_FRONTEND=noninteractive \
     apt install --assume-yes xfce4 desktop-base
@@ -42,7 +42,10 @@ sudo add-apt-repository "deb http://archives.dianomic.com/foglamp/latest/ubuntu1
 
 sudo apt update
 
-sudo apt -y install foglamp foglamp-gui foglamp-north-gcp foglamp-south-opcua
+sudo apt -y install foglamp foglamp-gui foglamp-north-gcp foglamp-south-opcua foglamp-filter-metadata
+
+wget http://archives.dianomic.com/foglamp/nightly/ubuntu1804/x86_64/foglamp-filter-rename-1.9.1-x86_64.deb
+sudo dpkg -i foglamp-filter-rename-1.9.1-x86_64.deb
 
 /usr/local/foglamp/bin/foglamp start
 
