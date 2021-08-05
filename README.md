@@ -23,15 +23,19 @@ Terraform will also create the necessary RSA keys to connect to the VM and authe
 
 :exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.  
 
-Follow the following steps to deploy the resources using Terraform:
-1. Clone the repository to your local machine:
-```git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git```
+<b>Follow the following steps to deploy the resources using Terraform:</b>
+1. Clone the repository to your local machine:  
+```
+git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git
+```
 2. Navigate to the Terraform directory:
 ```cd ./terragorm```
 3. Edit the ```variables.tfvars``` file to configure the Terraform input variables with your values
 4. Add your GCP credentials:
-From the Cloud Console, download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:
-```export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}```
+From the Cloud Console, download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:  
+```
+export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}
+```
 Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP. 
 5. Execute Terraform:
 ```
