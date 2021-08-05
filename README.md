@@ -18,8 +18,9 @@ Executing Terraform will provision the following GCP resources:
 - Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
 - Four Dataflow Jobs
+
 Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.
-```:exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.```
+:exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.
 1. Clone the repository to your local machine:
 ```git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git```
 2. Navigate to the Terraform directory:
@@ -34,7 +35,7 @@ Finally, execute ```gcloud auth login``` and follow the instructions to authenti
 terraform init 
 terraform apply -var-file="variables.tfvars
 ```
-```:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources```
+:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources
 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
