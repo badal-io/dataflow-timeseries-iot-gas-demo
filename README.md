@@ -19,7 +19,7 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
 - Four Dataflow Jobs  
 
-Terraform will also create the necessary RSA keys to connect to the VM and authenticate the IoT Core device.  
+Terraform will also create the necessary RSA keys to connect to the VM and authenticate the connection between FogLAMP and the IoT Core device.  
 
 :exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.  
 
@@ -33,18 +33,17 @@ git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git
 cd ./terraform
 ```
 3. Edit the ```variables.tfvars``` file to configure the Terraform input variables with your values
-4. Add your GCP credentials:  
-From the Cloud Console, download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:  
+4. To add your GCP credentials, navigate to the Cloud Console and download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:  
 ```
 export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}
 ```
-Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.   
+Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.    
 5. Execute Terraform:
 ```
 terraform init 
 terraform apply -var-file="variables.tfvars
 ```
-:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources
+:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources.
 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
