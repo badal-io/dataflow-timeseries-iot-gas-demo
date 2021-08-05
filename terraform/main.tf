@@ -5,12 +5,23 @@ provider "google" {
 }
 
 resource "tls_private_key" "google_compute_engine_ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+    algorithm = "RSA"
+    rsa_bits  = 4096
 }
 
-resource "google_compute_address" "static" {
-  name = "ipv4-address-demo"
+resource "tls_private_key" "foglamp_rsa" {
+    algorithm = "RSA"
+    rsa_bits  = 2048
+}
+
+resource "local_file" "foglamp_rsa_public" {
+    content = "${tls_private_key.foglamp_rsa.public_key_pem}"
+    filename = "./foglamp_keys/rsa_public.pem"
+}
+
+resource "local_file" "foglamp_rsa_private" {
+    content = "${tls_private_key.foglamp_rsa.private_key_pem}"
+    filename = "./foglamp_keys/rsa_private.pem"
 }
 
 resource "google_compute_instance" "instance_with_ip" {
@@ -30,7 +41,6 @@ resource "google_compute_instance" "instance_with_ip" {
     network_interface {
         network = "default"
         access_config {
-            nat_ip = google_compute_address.static.address
         }
     }
         
@@ -43,7 +53,18 @@ resource "google_compute_instance" "instance_with_ip" {
         destination = "~/scripts"
         connection {
             type        = "ssh"
-            host        = google_compute_address.static.address #google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
+            host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
+            user        = "${var.USER}"
+            private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
+        }
+    }
+
+    provisioner "file" {
+        source = "./foglamp_keys"
+        destination = "~/foglamp_keys"
+        connection {
+            type        = "ssh"
+            host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
             user        = "${var.USER}"
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
@@ -51,30 +72,15 @@ resource "google_compute_instance" "instance_with_ip" {
 
     provisioner "remote-exec" {
         inline = [
+            "cd ~/",
             "chmod +x ~/scripts/setup_vm.sh",
             "~/scripts/setup_vm.sh"
         ]
         connection {
             type        = "ssh"
-            host        = google_compute_address.static.address
+            host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
             user        = "${var.USER}"
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
-}
-
-variable "PROJECT" {
-  type = string
-}
-
-variable "USER" {
-    type = string
-}
-
-variable "REGION" {
-    type = string
-}
-
-variable "ZONE" {
-    type = string
 }

@@ -46,6 +46,11 @@ sudo apt -y install foglamp foglamp-gui foglamp-north-gcp foglamp-south-opcua
 
 /usr/local/foglamp/bin/foglamp start
 
+wget https://pki.goog/roots.pem
+cp roots.pem /usr/local/foglamp/data/etc/certs/
+cp ~/foglamp_keys/rsa_private.pem /usr/local/foglamp/data/etc/certs/
+cp ~/foglamp_keys/rsa_public.pem /usr/local/foglamp/data/etc/certs/
+
 #Part 3: install Java
 sudo apt -y install openjdk-8-jdk
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
