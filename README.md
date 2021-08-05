@@ -37,13 +37,16 @@ cd ./terraform
 ```
 export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}
 ```
-Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.    
-5. Execute Terraform:
+Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.     
+5. Run Terraform:
 ```
 terraform init 
 terraform apply -var-file="variables.tfvars
 ```
-:grey_exclamation: The execution will take approximately 7-8 minutes to deploy the configured resources.
+:grey_exclamation: The deployment will take approximately 7-8 minutes.  
+
+<b> Once Terraform has finished deploying GCP resources needed for the Demo, you can start setting up FogLAMP:</b>:
+
 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
