@@ -12,7 +12,6 @@
 
 # SSH keys
 *.pub
-*
 
 # Package Files #
 *.war
