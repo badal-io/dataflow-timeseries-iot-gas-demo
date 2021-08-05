@@ -17,13 +17,13 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - Three Pub/Sub topics (```foglamp-demo```, ```foglamp-demo-raw```, and ```foglamp-demo-events```)
 - Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
-- Four Dataflow Jobs  
+- Three Dataflow Jobs  
 
 Terraform will also create the necessary RSA keys to connect to the VM and authenticate the connection between FogLAMP and the IoT Core device.  
 
 :exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.  
 
-<b>Follow the following steps to deploy the resources using Terraform:</b>
+<b>Follow the following steps to deploy the Demo resources using Terraform:</b>
 1. Clone the repository to your local machine:  
 ```
 git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git
@@ -45,7 +45,7 @@ terraform apply -var-file="variables.tfvars
 ```
 :grey_exclamation: The deployment will take approximately 7-8 minutes.  
 
-<b> Once Terraform has finished deploying GCP resources needed for the Demo, you can start setting up FogLAMP:</b>:
+<b> Once Terraform has finished deploying the GCP resources needed for the Demo, you can start setting up FogLAMP:</b>
 
 
 ## Apache Beam Pipelines
@@ -56,7 +56,7 @@ The first pipeline is intended to be the point-of-entry for the raw IoT data. Th
     2. BigQuery table with "event frame" definitions (bounded side-input)
 - Format Pub/Sub messages to key/value pairs where they key is the IoT device-Id and the value is a BigQuery TableRow object
 - Process the key/value pairs through a stateful, looping timer. The timer expires after a user-defined duration when the ```@ProcessElement DoFn``` hasn't received any new elements for a given key, thus enabling the detection of devices that have gone silent and potentially lost function. Upon expiry, the ``@OnTimer DoFn`` resets the timer for that key and outputs a TableRow with the key / device-id. 
-- The ```EventFilter``` method describes a ```ParDo``` with two output ```PCollection```. It compares the key/value pairs against the conditions defined in the side-input table from BigQuery, and if they satisfy the conditions, the corresponding ```event_type``` field is appened to the TableRow and then they are outputted with an ```event_measurements``` tag, whereas all measurements are outputted with the ```all_measurements``` tag. The TableRows from the looping timer when a sensors has gone "silent" are also outputted here with the ```event_measurements``` tag.
+- The ```EventFilter``` method describes a ```ParDo``` with two output ```PCollection```. It compares the key/value pairs against the conditions defined in the side-input table from BigQuery, and if they satisfy the conditions, the corresponding ```event_type``` field is appened to the TableRow and then they are outputted with an ```event_measurements``` tag, whereas all measurements are outputted with the ```all_measurements``` tag. The TableRows from the looping timer when a sensor has gone "silent" are also outputted here with the ```event_measurements``` tag.
 - **Outputs**:
     1. The ```PCollection``` with the ```all_measurements``` tag is inserted to a BigQuery table containing all "raw" IoT sensor data
     2. The ```PCollection``` with the ```all_measurements``` tag is published to a Pub/Sub topic for downstream time-series processing
