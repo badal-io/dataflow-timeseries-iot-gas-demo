@@ -1,5 +1,7 @@
 # Dataflow IoT Timeseries Demo
 ## Overview
+gcloud compute ssh --project="sandbox-keyera-poc" --zone="us-central1-a" foglamp-demo-instance-test
+
 This repository provides a set of Apache Beam pipelines for processing streaming IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics.
 
 ![IoT Demo GCP Architecture](images/IoT_Demo_Diagram.png?raw=true "IoT Demo GCP Architecture")
@@ -94,9 +96,15 @@ To explore the data:
 1. Go to the BigQuery console
 2. Look for the ```foglamp_demo``` dataset, where you will have access to the following tables:
 ![BigQuery](images/bigquery.png?raw=true "BigQuery")  
-3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform build to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (1 min, 10 min, 1h, etc.). 
+3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform configuration to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (e.g. 1 min, 10 min, etc.). 
 ### Simulating Event Frames
 One of the features of this demo is the capturing of abnormal device behaviour in the form of events. Let's do the following example:
+1. In the desktop environment of your VM, go to the OPC UA server and stop the simulation by clicking on the "Stop" button in the "Objects" tab:
+![OPC UA Stop](images/opcua_stop.png?raw=true "OPC UA Stop")
+2. Back to BigQuery, you will now have a table ```measurements_raw_events``` where the outage of the sensor is captured in real-time for as long as the outage lasts:
+![Events](images/opcua_stop.png?raw=true "Events")  
+What about custom events? The ```event_definitions``` table allows a user to define custom events for all or specific devices and measured properties:
+![Event Definitions](images/event_definitions.png?raw=true "Event Definitions")
 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
