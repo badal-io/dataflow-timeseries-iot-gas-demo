@@ -13,7 +13,7 @@ resource "google_storage_bucket" "foglamp_demo_dataflow" {
             export TOPIC_MAIN=${google_pubsub_topic.foglamp-demo.id}
             export TOPIC_RAW=${google_pubsub_topic.foglamp-demo-raw.id}
             export TOPIC_EVENTS=${google_pubsub_topic.foglamp-demo-events.id}
-            export DATASET='foglamp_demo_test'
+            export DATASET='${var.DATASET}'
             chmod +x ./scripts/setup_dataflow.sh
             ./scripts/setup_dataflow.sh
         EOF

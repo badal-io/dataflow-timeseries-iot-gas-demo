@@ -80,15 +80,17 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 15. Here you can enter useful metadata associated with your sensor, such as location, configuration version, etc. For the demo we will define the device version:
 ![Metadata](images/metadata.png?raw=true "Metadata")  
 16. Click on "Done" to enable the Metadata plugin.
-17. Back on the configuration menu of your asset, click on "Applications+" and from the Plugin list select "rename".
-18. Select "datapoint" as the "Operation" and set the "Find" field value to the Node Id of your OPC UA variable. Replace it with the actual property being measured, e.g. "temperature":
+17. Back on the configuration menu of your asset, click on "Applications+" and from the plugin list select "rename".
+18. Select "datapoint" as the "Operation" and set the "Find" field value to the Node Id of your OPC UA variable. Replace it with the actual property being measured, e.g. "flowrate":
 ![Rename](images/rename.png?raw=true "Rename") 
-19. Using the menu bar on the left side of the UI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
-20. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:  
+19. Add an additional "rename" plugin. Select "asset" as the "Operation" and set the "Find" field value to the default asset name that FogLAMP has assigned. Replace it with the actual device-Id, e.g. "Coriolis_01":
+![Rename Device](images/rename_device.png?raw=true "Rename Device") 
+20. Using the menu bar on the left side of the UI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
+21. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:  
 ![FogLAMP North](images/foglamp_north.png?raw=true "FogLAMP North")  
-21. Click on "Next" to enable the GCP plugin.
-22. Finally, back to the "South Service" menu, click on your asset and select "Enabled" to activate it.
-23. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:
+22. Click on "Next" to enable the GCP plugin.
+23. Finally, back to the "South Service" menu, click on your asset and select "Enabled" to activate it.
+24. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:
 ![FogLAMP Final](images/foglamp_final.png?raw=true "FogLAMP Final")  
 ### Exploring the Data
 Once FogLAMP is transmitting the OPC UA data to the IoT Core, the downstream Pub/Sub topics and Dataflow Jobs will stream them to BigQuery.  
@@ -102,10 +104,14 @@ One of the features of this demo is the capturing of abnormal device behaviour i
 1. In the desktop environment of your VM, go to the OPC UA server and stop the simulation by clicking on the "Stop" button in the "Objects" tab:
 ![OPC UA Stop](images/opcua_stop.png?raw=true "OPC UA Stop")
 2. Back to BigQuery, you will now have a table ```measurements_raw_events``` where the outage of the sensor is captured in real-time for as long as the outage lasts:
-![Events](images/opcua_stop.png?raw=true "Events")  
+![Events](images/raw_events.png?raw=true "Events")  
 What about custom events? The ```event_definitions``` table allows a user to define custom events for all or specific devices and measured properties:
 ![Event Definitions](images/event_definitions.png?raw=true "Event Definitions")
-
+3. Let's go back to the OPC UA GUI and start the simulation again, but this time change the flowrate to a value less that 10 to activate the "Low Flowrate" Event. 
+4. As soon as we change the value, we can see the event rows being inserted to the events table in BigQuery as a separate event:
+![Events](images/raw_events_2.png?raw=true "Events") 
+5. Finally, the ```events_summary_view``` summarizes the key metrics for each event:
+![Events View](images/events_view.png?raw=true "Events View") 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:

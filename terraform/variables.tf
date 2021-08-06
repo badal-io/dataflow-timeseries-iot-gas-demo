@@ -13,3 +13,7 @@ variable "REGION" {
 variable "ZONE" {
     type = string
 }
+
+variable "DATASET" {
+    type = string
+}
