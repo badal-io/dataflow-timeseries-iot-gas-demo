@@ -1,6 +1,5 @@
 # Dataflow IoT Timeseries Demo
 ## Overview
-gcloud compute ssh --project="sandbox-keyera-poc" --zone="us-central1-a" foglamp-demo-instance-test
 
 This repository provides a set of Apache Beam pipelines for processing streaming IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics.
 
