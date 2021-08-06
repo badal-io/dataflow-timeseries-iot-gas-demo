@@ -66,18 +66,37 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 7. From the desktop environment of your VM, navigate to ```/opt/prosys-opc-ua-simulation-server``` and click on the ```Prosys OPC UA Simulation Server``` icon. Once the Server Status changes to "Running", copy the "Connection Address (UA TCP)" as you will need this later. 
 8. In the OPC UA server, click on the second tab "Objects". Remove the sample nodes, and add a new object node:  
 ![Object Node](images/object_node.png?raw=true "Object Node")  
-9. Then, add a variable node under the object node:
+9. Then add a variable node under the object node:
 ![Variable Node](images/variable_node.png?raw=true "Variable Node")     
 :exclamation: Take note of the node IDs as you will need them later on.  
-10. open the browser and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard UI.  
+10. Open the browser of your VM and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard UI.  
 11. Using the menu bar on the left side of the UI, click on "South" and then click on "Add+" in the upper right of the South Services screen. Select "opcua" from the list and provide a unique name for the asset. Click on "Next".
 12. Copy the Connection Address of your OPC UA server to the "OPCUA Server URL" field, and ender the Node Id of your object node to the "OPCUA Object Subscriptions":
 ![FogLAMP South](images/foglamp_south.png?raw=true "FogLAMP South") 
-13. Click on "Next" and unselect "Enabled" for now.
-14. From the "South Services" menu, click on your asset and then clcik on "Applications+". From the Plugin list select "metadata" and click on "Next".
-15. Here you can enter useful metadata associated with your sensor, such as location, configuration version. For the demo we will define the device version:
-![Metadata](images/metadata.png?raw=true "Metadata") 
-
+13. Click on "Next" and <b>unselect "Enabled"</b> for now.
+14. From the "South Services" menu, click on your asset and then click on "Applications+". From the Plugin list select "metadata" and click on "Next".
+15. Here you can enter useful metadata associated with your sensor, such as location, configuration version, etc. For the demo we will define the device version:
+![Metadata](images/metadata.png?raw=true "Metadata")  
+16. Click on "Done" to enable the Metadata plugin.
+17. Back on the configuration menu of your asset, click on "Applications+" and from the Plugin list select "rename".
+18. Select "datapoint" as the "Operation" and set the "Find" field value to the Node Id of your OPC UA variable. Replace it with the actual property being measured, e.g. "temperature":
+![Rename](images/rename.png?raw=true "Rename") 
+19. Using the menu bar on the left side of the UI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
+20. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:  
+![FogLAMP North](images/foglamp_north.png?raw=true "FogLAMP North")  
+21. Click on "Next" to enable the GCP plugin.
+22. Finally, back to the "South Service" menu, click on your asset and select "Enabled" to activate it.
+23. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:
+![FogLAMP Final](images/foglamp_final.png?raw=true "FogLAMP Final")  
+### Exploring the Data
+Once FogLAMP is transmitting the OPC UA data to the IoT Core, the downstream Pub/Sub topics and Dataflow Jobs will stream them to BigQuery.  
+To explore the data:
+1. Go to the BigQuery console
+2. Look for the ```foglamp_demo``` dataset, where you will have access to the following tables:
+![BigQuery](images/bigquery.png?raw=true "BigQuery")  
+3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform build to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (1 min, 10 min, 1h, etc.). 
+### Simulating Event Frames
+One of the features of this demo is the capturing of abnormal device behaviour in the form of events. Let's do the following example:
 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
