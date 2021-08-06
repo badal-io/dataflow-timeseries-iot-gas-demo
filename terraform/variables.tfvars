@@ -1,5 +1,5 @@
-PROJECT="sandbox-keyera-poc"
+PROJECT={{ Your Project Id }}
 REGION="us-central1"
 ZONE="us-central1-a"
-USER="michail-foglamp-test"
-DATASET = "foglamp_demo_august_test"
+USER="foglamp-demo"
+DATASET = "foglamp_demo"

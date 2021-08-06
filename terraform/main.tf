@@ -25,7 +25,7 @@ resource "local_file" "foglamp_rsa_private" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-    name         = "foglamp-demo-instance-test"
+    name         = "foglamp-demo-instance"
     machine_type = "e2-standard-2"
 
     tags = ["http-server","https-server"]

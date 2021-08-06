@@ -1,17 +1,17 @@
 resource "google_pubsub_topic" "foglamp-demo" {
-    name = "foglamp-demo-test"
+    name = "foglamp-demo"
 }
 
 resource "google_pubsub_topic" "foglamp-demo-raw" {
-    name = "foglamp-demo-raw-test"
+    name = "foglamp-demo-raw"
 }
 
 resource "google_pubsub_topic" "foglamp-demo-events" {
-    name = "foglamp-demo-events-test"
+    name = "foglamp-demo-events"
 }
 
 resource "google_cloudiot_registry" "foglamp-demo-registry" {
-    name     = "foglamp-demo-registry-test"
+    name     = "foglamp-demo-registry"
 
     event_notification_configs {
         pubsub_topic_name = google_pubsub_topic.foglamp-demo.id
@@ -20,7 +20,7 @@ resource "google_cloudiot_registry" "foglamp-demo-registry" {
 }
 
 resource "google_cloudiot_device" "foglamp-demo-device" {
-    name     = "foglamp-demo-device-test"
+    name     = "foglamp-demo-device"
     registry = google_cloudiot_registry.foglamp-demo-registry.id
 
     credentials {

@@ -44,7 +44,7 @@ Finally, execute ```gcloud auth login``` and follow the instructions to authenti
 5. Run Terraform:
 ```
 terraform init 
-terraform apply -var-file="variables.tfvars
+terraform apply -var-file="variables.tfvars"
 ```
 :grey_exclamation: The deployment will take approximately 6-7 minutes.  
 
@@ -52,7 +52,7 @@ terraform apply -var-file="variables.tfvars
 
 1. Connect to the VM through the Google Cloud Console or the ```gcloud``` command-line tool:  
 ```
-gcloud compute ssh --project=${PROJECT} --zone=${ZONE} VM_NAME 
+gcloud compute ssh --project=${PROJECT} --zone=${ZONE} foglamp-demo-instance 
 ```
 2. After you connect, use the browser in your local machine to navigate to [Google Chrome Remote Desktop](https://remotedesktop.google.com/headless)  
 3. Click on ```Begin``` > ```Next``` > ```Authorize```. The page should display a command line for Debian Linux that looks like the following:  
@@ -111,7 +111,7 @@ What about custom events? The ```event_definitions``` table allows a user to def
 4. As soon as we change the value, we can see the event rows being inserted to the events table in BigQuery as a separate event:
 ![Events](images/raw_events_2.png?raw=true "Events") 
 5. Finally, querying the ```events_summary_view``` view enables the user to obtain a summary of the key metrics for each event:
-![Events View](images/events_view.png?raw=true "Events View") 
+![Events View](images/events_view.png?raw=true "Events View")   
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:
