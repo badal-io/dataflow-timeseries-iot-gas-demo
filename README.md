@@ -66,51 +66,51 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 5. Navigate back to [Chrome's Remote Access](https://remotedesktop.google.com/access). You should see the VM's name listed under "Remote Devices". Click on it and enter your pin when prompted. You are now connected to the desktop environment of your VM.
 6. On the Google Cloud Console, navigate to the Compute Engine and locate your VM. Note the internal IP allocated to your machine.
 7. From the desktop environment of your VM, navigate to ```/opt/prosys-opc-ua-simulation-server``` and click on the ```Prosys OPC UA Simulation Server``` icon. Once the Server Status changes to "Running", copy the "Connection Address (UA TCP)" as you will need this later. 
-8. In the OPC UA server, click on the second tab "Objects". Remove the sample nodes, and add a new object node:  
+8. In the OPC UA server, click on the second tab "Objects". Remove the sample nodes, and add a new object node:    
 ![Object Node](images/object_node.png?raw=true "Object Node")  
-9. Then add a variable node under the object node:
+9. Then add a variable node under the object node:  
 ![Variable Node](images/variable_node.png?raw=true "Variable Node")     
 :exclamation: Take note of the node IDs as you will need them later on.  
 10. Open the browser of your VM and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard GUI.  
 11. Using the menu bar on the left side of the GUI, click on "South" and then click on "Add+" in the upper right of the South Services screen. Select "opcua" from the list and provide a unique name for the asset. Click on "Next".
-12. Copy the Connection Address of your OPC UA server to the "OPCUA Server URL" field, and ender the Node Id of your object node to the "OPCUA Object Subscriptions":
+12. Copy the Connection Address of your OPC UA server to the "OPCUA Server URL" field, and ender the Node Id of your object node to the "OPCUA Object Subscriptions":  
 ![FogLAMP South](images/foglamp_south.png?raw=true "FogLAMP South") 
 13. Click on "Next" and <b>unselect "Enabled"</b> for now.
 14. From the "South Services" menu, click on your asset and then click on "Applications+". From the Plugin list select "metadata" and click on "Next".
-15. Here you can enter useful metadata associated with your sensor, such as location, configuration version, etc. For the demo we will define the device version:
+15. Here you can enter useful metadata associated with your sensor, such as location, configuration version, etc. For the demo we will define the device version:  
 ![Metadata](images/metadata.png?raw=true "Metadata")  
 16. Click on "Done" to enable the Metadata plugin.
 17. Back on the configuration menu of your asset, click on "Applications+" and from the plugin list select "rename".
-18. Select "datapoint" as the "Operation" and set the "Find" field value to the Node Id of your OPC UA variable. Replace it with the actual property being measured, e.g. "flowrate":
+18. Select "datapoint" as the "Operation" and set the "Find" field value to the Node Id of your OPC UA variable. Replace it with the actual property being measured, e.g. "flowrate":  
 ![Rename](images/rename.png?raw=true "Rename") 
-19. Add an additional "rename" plugin. Select "asset" as the "Operation" and set the "Find" field value to the default asset name that FogLAMP has assigned. Replace it with the actual device-Id, e.g. "Coriolis_01":
+19. Add an additional "rename" plugin. Select "asset" as the "Operation" and set the "Find" field value to the default asset name that FogLAMP has assigned. Replace it with the actual device-Id, e.g. "Coriolis_01":  
 ![Rename Device](images/rename_device.png?raw=true "Rename Device") 
 20. Using the menu bar on the left side of the GUI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
-21. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:  
+21. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:    
 ![FogLAMP North](images/foglamp_north.png?raw=true "FogLAMP North")  
 22. Click on "Next" to enable the GCP plugin.
 23. Finally, back to the "South Service" menu, click on your asset and select "Enabled" to activate it.
-24. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:
+24. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:  
 ![FogLAMP Final](images/foglamp_final.png?raw=true "FogLAMP Final")  
 ### Exploring the Data
 Once FogLAMP is transmitting the OPC UA data to the IoT Core, the downstream Pub/Sub topics and Dataflow Jobs will stream them to BigQuery.  
 To explore the data:
 1. Go to the BigQuery console
-2. Look for the ```foglamp_demo``` dataset, where you will have access to the following tables:
+2. Look for the ```foglamp_demo``` dataset, where you will have access to the following tables:  
 ![BigQuery](images/bigquery.png?raw=true "BigQuery")  
 3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform configuration to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (e.g. 1 min, 10 min, etc.). 
 ### Simulating Event Frames
 One of the features of this demo is the capturing of abnormal device behaviour in the form of events. Let's do the following example:
-1. In the desktop environment of your VM, go to the OPC UA server and stop the simulation by clicking on the "Stop" button in the "Objects" tab:
+1. In the desktop environment of your VM, go to the OPC UA server and stop the simulation by clicking on the "Stop" button in the "Objects" tab:  
 ![OPC UA Stop](images/opcua_stop.png?raw=true "OPC UA Stop")
-2. Back to BigQuery, you will now have a table ```measurements_raw_events``` where the outage of the sensor is captured in real-time for as long as the outage lasts:
+2. Back to BigQuery, you will now have a table ```measurements_raw_events``` where the outage of the sensor is captured in real-time for as long as the outage lasts:  
 ![Events](images/raw_events.png?raw=true "Events")  
-What about custom events? The ```event_definitions``` table allows a user to define custom events for all or specific devices and measured properties:
+What about custom events? The ```event_definitions``` table allows a user to define custom events for all or specific devices and measured properties:  
 ![Event Definitions](images/event_definitions.png?raw=true "Event Definitions")
 3. Let's go back to the OPC UA GUI and start the simulation again, but this time change the flowrate to a value less that 10 to activate the "Low Flowrate" Event. 
-4. As soon as we change the value, we can see the event rows being inserted to the events table in BigQuery as a separate event:
+4. As soon as we change the value, we can see the event rows being inserted to the events table in BigQuery as a separate event:  
 ![Events](images/raw_events_2.png?raw=true "Events") 
-5. Finally, querying the ```events_summary_view``` view enables the user to obtain a summary of the key metrics for each event:
+5. Finally, querying the ```events_summary_view``` view enables the user to obtain a summary of the key metrics for each event:  
 ![Events View](images/events_view.png?raw=true "Events View")   
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
