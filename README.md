@@ -19,6 +19,7 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - Three Pub/Sub topics (```foglamp-demo```, ```foglamp-demo-raw```, and ```foglamp-demo-events```)
 - Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
 - A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
+- A BigQuery View (```events_summary_view```) for summarizing Event Frames
 - Three Dataflow Jobs  
 
 Terraform will also create the necessary RSA keys to connect to the VM and authenticate the connection between FogLAMP and the IoT Core device.  
