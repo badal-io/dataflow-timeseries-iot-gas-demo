@@ -71,8 +71,8 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 9. Then add a variable node under the object node:
 ![Variable Node](images/variable_node.png?raw=true "Variable Node")     
 :exclamation: Take note of the node IDs as you will need them later on.  
-10. Open the browser of your VM and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard UI.  
-11. Using the menu bar on the left side of the UI, click on "South" and then click on "Add+" in the upper right of the South Services screen. Select "opcua" from the list and provide a unique name for the asset. Click on "Next".
+10. Open the browser of your VM and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard GUI.  
+11. Using the menu bar on the left side of the GUI, click on "South" and then click on "Add+" in the upper right of the South Services screen. Select "opcua" from the list and provide a unique name for the asset. Click on "Next".
 12. Copy the Connection Address of your OPC UA server to the "OPCUA Server URL" field, and ender the Node Id of your object node to the "OPCUA Object Subscriptions":
 ![FogLAMP South](images/foglamp_south.png?raw=true "FogLAMP South") 
 13. Click on "Next" and <b>unselect "Enabled"</b> for now.
@@ -85,7 +85,7 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 ![Rename](images/rename.png?raw=true "Rename") 
 19. Add an additional "rename" plugin. Select "asset" as the "Operation" and set the "Find" field value to the default asset name that FogLAMP has assigned. Replace it with the actual device-Id, e.g. "Coriolis_01":
 ![Rename Device](images/rename_device.png?raw=true "Rename Device") 
-20. Using the menu bar on the left side of the UI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
+20. Using the menu bar on the left side of the GUI, click on "North" and then click on "Add+" in the upper right of the North Services screen. Select "GCP" from the list and provide a unique name for the asset. Click on "Next".
 21. Enter your Project ID and region, and the following default values for the Registry ID, Device ID, and Key Name. Terraform has already configured the private key required to connect FogLAMP and GCP IoT Core, so all that's required is to enter the default key name:  
 ![FogLAMP North](images/foglamp_north.png?raw=true "FogLAMP North")  
 22. Click on "Next" to enable the GCP plugin.
@@ -110,7 +110,7 @@ What about custom events? The ```event_definitions``` table allows a user to def
 3. Let's go back to the OPC UA GUI and start the simulation again, but this time change the flowrate to a value less that 10 to activate the "Low Flowrate" Event. 
 4. As soon as we change the value, we can see the event rows being inserted to the events table in BigQuery as a separate event:
 ![Events](images/raw_events_2.png?raw=true "Events") 
-5. Finally, the ```events_summary_view``` summarizes the key metrics for each event:
+5. Finally, querying the ```events_summary_view``` view enables the user to obtain a summary of the key metrics for each event:
 ![Events View](images/events_view.png?raw=true "Events View") 
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
