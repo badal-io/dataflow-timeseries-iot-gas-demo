@@ -24,6 +24,7 @@ Terraform will also create the necessary RSA keys to connect to the VM and authe
 :exclamation: The RSA keys generated will be stored unencrypted in your Terraform state file. In a production environment, generate your private keys outside of Terraform.  
 
 <b>Follow the following steps to deploy the Demo resources using Terraform:</b>
+
 1. Clone the repository to your local machine:  
 ```
 git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git
@@ -43,9 +44,39 @@ Finally, execute ```gcloud auth login``` and follow the instructions to authenti
 terraform init 
 terraform apply -var-file="variables.tfvars
 ```
-:grey_exclamation: The deployment will take approximately 7-8 minutes.  
+:grey_exclamation: The deployment will take approximately 6-7 minutes.  
 
 <b> Once Terraform has finished deploying the GCP resources needed for the Demo, you can start setting up FogLAMP:</b>
+
+1. Connect to the VM through the Google Cloud Console or the ```gcloud``` command-line tool:  
+```
+gcloud compute ssh --project=${PROJECT} --zone=${ZONE} VM_NAME 
+```
+2. After you connect, use the browser in your local machine to navigate to [Google Chrome Remote Desktop](https://remotedesktop.google.com/headless)  
+3. Click on ```Begin``` > ```Next``` > ```Authorize```. The page should display a command line for Debian Linux that looks like the following:  
+```
+DISPLAY= /opt/google/chrome-remote-desktop/start-host \
+    --code="4/xxxxxxxxxxxxxxxxxxxxxxxx" \
+    --redirect-url="https://remotedesktop.google.com/_/oauthredirect" \
+    --name=$(hostname)
+```  
+4. Copy the command and paste it to the terminal of your VM in the SSH window that's connected to your instance, and then run the command. Follow the steps to setup a pin. Ignore errors like ```No net_fetcher``` or ```Failed to read```.  
+5. Navigate back to [Chrome's Remote Access](https://remotedesktop.google.com/access). You should see the VM's name listed under "Remote Devices". Click on it and enter your pin when prompted. You are now connected to the desktop environment of your VM.
+6. On the Google Cloud Console, navigate to the Compute Engine and locate your VM. Note the internal IP allocated to your machine.
+7. From the desktop environment of your VM, navigate to ```/opt/prosys-opc-ua-simulation-server``` and click on the ```Prosys OPC UA Simulation Server``` icon. Once the Server Status changes to "Running", copy the "Connection Address (UA TCP)" as you will need this later. 
+8. In the OPC UA server, click on the second tab "Objects". Remove the sample nodes, and add a new object node:  
+![Object Node](images/object_node.png?raw=true "Object Node")  
+9. Then, add a variable node under the object node:
+![Variable Node](images/variable_node.png?raw=true "Variable Node")     
+:exclamation: Take note of the node IDs as you will need them later on.  
+10. open the browser and navigate to ```http://{{ Your VM's internal IP}}```. Your are now accessing the FogLAMP dashboard UI.  
+11. Using the menu bar on the left side of the UI, click on "South" and then click on "Add+" in the upper right of the South Services screen. Select "opcua" from the list and provide a unique name for the asset. Click on "Next".
+12. Copy the Connection Address of your OPC UA server to the "OPCUA Server URL" field, and ender the Node Id of your object node to the "OPCUA Object Subscriptions":
+![FogLAMP South](images/foglamp_south.png?raw=true "FogLAMP South") 
+13. Click on "Next" and unselect "Enabled" for now.
+14. From the "South Services" menu, click on your asset and then clcik on "Applications+". From the Plugin list select "metadata" and click on "Next".
+15. Here you can enter useful metadata associated with your sensor, such as location, configuration version. For the demo we will define the device version:
+![Metadata](images/metadata.png?raw=true "Metadata") 
 
 
 ## Apache Beam Pipelines
