@@ -17,7 +17,7 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 - An IoT core registry and telemetry device
 - Three Pub/Sub topics (```foglamp-demo```, ```foglamp-demo-raw```, and ```foglamp-demo-events```)
 - Two GCS buckets (```foglamp_demo_main``` and ```foglamp_demo_dataflow```)
-- A BigQuery Dataset (```foglamp_demp```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
+- A BigQuery Dataset (```foglamp_demo```) containing 5 tables (```assets```, ```device_connections```, ```devices```, ```event_definitions```, and ```paths```)
 - A BigQuery View (```events_summary_view```) for summarizing Event Frames
 - Three Dataflow Jobs  
 
@@ -64,7 +64,10 @@ DISPLAY= /opt/google/chrome-remote-desktop/start-host \
 ```  
 4. Copy the command and paste it to the terminal of your VM in the SSH window that's connected to your instance, and then run the command. Follow the steps to setup a pin. Ignore errors like ```No net_fetcher``` or ```Failed to read```.  
 5. Navigate back to [Chrome's Remote Access](https://remotedesktop.google.com/access). You should see the VM's name listed under "Remote Devices". Click on it and enter your pin when prompted. You are now connected to the desktop environment of your VM.
-6. On the Google Cloud Console, navigate to the Compute Engine and locate your VM. Note the internal IP allocated to your machine.
+6. Query the VM's internal IP address from the Terraform terminal:  
+```
+terraform output internal_ip
+```
 7. From the desktop environment of your VM, navigate to ```/opt/prosys-opc-ua-simulation-server``` and click on the ```Prosys OPC UA Simulation Server``` icon. Once the Server Status changes to "Running", copy the "Connection Address (UA TCP)" as you will need this later. 
 8. In the OPC UA server, click on the second tab "Objects". Remove the sample nodes, and add a new object node:    
 ![Object Node](images/object_node.png?raw=true "Object Node")  

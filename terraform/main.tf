@@ -84,3 +84,7 @@ resource "google_compute_instance" "instance_with_ip" {
         }
     }
 }
+
+output "internal_ip" {
+    value = google_compute_instance.instance_with_ip.network_interface.0.network_ip
+}
