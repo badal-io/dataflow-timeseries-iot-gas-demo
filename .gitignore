@@ -83,3 +83,4 @@ override.tf.json
 terraform.rc
 
 **/foglamp_keys
+**/.terraform.lock.hcl

@@ -1,7 +1,7 @@
 # Dataflow IoT Timeseries Demo
 ## Overview
 
-This repository provides a set of Apache Beam pipelines for processing streaming IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics.
+This repository provides a set of Apache Beam pipelines for processing streaming IoT sensor data from [FogLAMP](https://github.com/foglamp/FogLAMP) and writing them to BigQuery for downstream analytics. To that end, we have leveraged the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library to compute timeseries metrics in the ingested IoT data, and the State and Timers for DoFn in Apache Beam for capturing user-defined events in the IoT data.
 
 ![IoT Demo GCP Architecture](images/IoT_Demo_Diagram.png?raw=true "IoT Demo GCP Architecture")
 
@@ -101,9 +101,10 @@ To explore the data:
 1. Go to the BigQuery console
 2. Look for the ```foglamp_demo``` dataset, where you will have access to the following tables:  
 ![BigQuery](images/bigquery.png?raw=true "BigQuery")  
-3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform configuration to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (e.g. 1 min, 10 min, etc.). 
+3. The ```measurements_raw``` table is where the raw IoT data are landed, whereas the IoT data processed with the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library are inserted to the ```measurements_window_1min```. Note that you can configure the Terraform configuration to deploy as many as Timeseries Dataflow jobs you wish to cover different windowing periods (e.g. 1 min, 10 min, etc.):  
+![BigQuery Tables](images/raw_timeseries_tables.png?raw=true "BigQuery Tables")
 ### Simulating Event Frames
-One of the features of this demo is the capturing of abnormal device behaviour in the form of events. Let's do the following example:
+One of the features of this demo is the capturing of abnormal device behaviour in the form of events. Events are critical time periods while an activity that is signficiant to a process or operation is taking place. Engineers and operations managers need to define the defents that are relevant to their process and perform analysis on these events in real-time when they occur. However, the event data and the process data are often in different data siloes, making their integration challenging. In our architecture, by combining a stream of raw sensor data and the event criteria defined by a user, we are able to detect the sensor data that are part of an event and stream these to the same BigQuery dataset. Let's do the following example:
 1. In the desktop environment of your VM, go to the OPC UA server and stop the simulation by clicking on the "Stop" button in the "Objects" tab:  
 ![OPC UA Stop](images/opcua_stop.png?raw=true "OPC UA Stop")
 2. Back to BigQuery, you will now have a table ```measurements_raw_events``` where the outage of the sensor is captured in real-time for as long as the outage lasts:  
@@ -118,13 +119,13 @@ What about custom events? The ```event_definitions``` table allows a user to def
 ## Apache Beam Pipelines
 ### [Processing of Raw IoT Sensor Data](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-raw)
 The first pipeline is intended to be the point-of-entry for the raw IoT data. The pipeline consists of the following components:
-- **Inputs**:
+- **Sources**:
     1. Pub/Sub topic with raw sensor data from FogLAMP (unbounded main-input)
     2. BigQuery table with "event frame" definitions (bounded side-input)
 - Format Pub/Sub messages to key/value pairs where they key is the IoT device-Id and the value is a BigQuery TableRow object
 - Process the key/value pairs through a stateful, looping timer. The timer expires after a user-defined duration when the ```@ProcessElement DoFn``` hasn't received any new elements for a given key, thus enabling the detection of devices that have gone silent and potentially lost function. Upon expiry, the ``@OnTimer DoFn`` resets the timer for that key and outputs a TableRow with the key / device-id. 
-- The ```EventFilter``` method describes a ```ParDo``` with two output ```PCollection```. It compares the key/value pairs against the conditions defined in the side-input table from BigQuery, and if they satisfy the conditions, the corresponding ```event_type``` field is appened to the TableRow and then they are outputted with an ```event_measurements``` tag, whereas all measurements are outputted with the ```all_measurements``` tag. The TableRows from the looping timer when a sensor has gone "silent" are also outputted here with the ```event_measurements``` tag.
-- **Outputs**:
+- The ```EventFilter``` method describes a ```ParDo``` with a TaggedOutput so that each element in the output ```PCollection``` is tagged indicating whether it is an event or not. It does so by comparing the key/value pairs of an element against the conditions defined in the side-input table from BigQuery, and if are satisfied, the ```event_type``` field is appended to the value of the elemenent and it is emitted by the ```@ProcessElement``` block with an ```event_measurements``` tag, whereas all measurements are emitted with the ```all_measurements``` tag. The elements from the looping timer when a sensor has gone "silent" are also outputted here with the ```event_measurements``` tag. 
+- **Sinks**:
     1. The ```PCollection``` with the ```all_measurements``` tag is inserted to a BigQuery table containing all "raw" IoT sensor data
     2. The ```PCollection``` with the ```all_measurements``` tag is published to a Pub/Sub topic for downstream time-series processing
     3. The ```PCollection``` with the ```event_measurements``` tag is published to a Pub/Sub topic for downstream event processing
@@ -133,21 +134,21 @@ The first pipeline is intended to be the point-of-entry for the raw IoT data. Th
 
 ### [Processing of IoT Sensor Events](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-events-iot)
 This pipeline is designed to process the sensor event data emitted from the first pipeline. The pipeline consists of the following components:
-- **Inputs**:
+- **Sources**:
     - Pub/Sub topic with sensor event data from the first pipeline
 - Format Pub/Sub messages to key/value pairs where they key is the IoT ```device-Id # event_type``` and the value is a BigQuery TableRow object
 - Process the key/value pairs through a stateful, looping timer. For every ```device-Id # event_type``` key, a timer and a random UUID ```event-Id``` are initialized and the ```event-Id``` is written to the ```ValueState``` interface. Every key/value pair of sensor events that are processed by the ```@ProcessElement DoFn``` reset the timer and read the current ```event-Id``` from the ```ValueState```, which is appened as an ```event-Id``` field to the TableRow before being outputted. After a user-defined duration without new elements for a given ```device-Id # event_type``` key, the timer for that key expires and a new ```event-Id``` is written to the ```ValueState``` replacing the old value.
-- **Outputs**:
+- **Sinks**:
     - The ```PCollection``` is inserted to a BigQuery table containing all "event" IoT sensor data
 
 ![Looping Stateful Timer (2)](images/looping_timer_2.png?raw=true "Looping Stateful Timer")
 
 ### [Processing of Time-series Transforms](https://github.com/badal-io/dataflow-timeseries-iot-gas-demo/tree/main/dataflow-timeseries-iot)
 The final pipeline is based on the Dataflow [Timeseries Streaming](https://github.com/GoogleCloudPlatform/dataflow-sample-applications) library to compute metrics across several time periods, such as the relative strength index (RSI) and moving average (MA). The pipeline consists of the following components:
-- **Inputs**:
+- **Sources**:
     - Pub/Sub topic with formatted sensor data from the first pipeline
 - The custom method ```ParseTSDataPointFromPubSub``` transforms the Pub/Sub messages to the native ```TSDataPoint``` object of the Timeseries Library. The primary key is set to the ```device-Id```, whereas the secondary key is set to the ```property_measured``` in each data point (e.g. mass density, temperature, etc.).
 - The ```GenerateComputations``` method of the TimeSeries Library is used to window the elements and compute the metrics declared in the pipeline options.
 - Finally, the custom method ```TSAccumToRowPivot``` parses the ```PCollection``` with the computated metric values into a Row object.
-- **Outputs**:
+- **Sinks**:
     - The ```PCollection``` is inserted to a BigQuery table containing all the timeseries-metrics data 
