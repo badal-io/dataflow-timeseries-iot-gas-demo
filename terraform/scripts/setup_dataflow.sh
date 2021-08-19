@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ~/dataflow-timeseries-iot-gas-demo
+cd ../
 cd ./dataflow-events-iot
 ./gradlew clean execute \
      -Dexec.mainClass=com.foglamp_events.IoTStreamBigQueryEvents \
@@ -7,9 +7,9 @@ cd ./dataflow-events-iot
                   --project=${PROJECT} \
                   --region=${REGION} \
                   --stagingLocation=${STAGING_LOCATION} \
-                  --tempLocation=${tempLocation} \
+                  --tempLocation=${TEMP_LOCATION} \
                   --gapSize=60 \
-                  --inputTopic=projects/${PROJECT}/topics/foglamp-demo-events \
+                  --inputTopic=${TOPIC_EVENTS} \
                   --outputTable=${PROJECT}:${DATASET}.measurements_raw_events"
 
 cd ../
@@ -22,9 +22,9 @@ cd ./dataflow-raw
                   --stagingLocation=${STAGING_LOCATION} \
                   --tempLocation=${TEMP_LOCATION} \
                   --timerSize=30 \
-                  --inputTopic=projects/${PROJECT}/topics/foglamp-demo \
-                  --outputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \
-                  --outputEventTopic=projects/${PROJECT}/topics/foglamp-demo-events \
+                  --inputTopic=${TOPIC_MAIN} \
+                  --outputTopic=${TOPIC_RAW} \
+                  --outputEventTopic=${TOPIC_EVENTS} \
                   --inputTable=${PROJECT}.${DATASET}.event_definitions \
                   --outputTable=${PROJECT}:${DATASET}.measurements_raw"
 
@@ -39,17 +39,5 @@ cd ./dataflow-timeseries-iot
                   --tempLocation=${TEMP_LOCATION} \
                   --typeOneComputationsLengthInSecs=60 \
                   --typeTwoComputationsLengthInSecs=600 \
-                  --inputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \
+                  --inputTopic=${TOPIC_RAW} \
                   --outputTable=${PROJECT}:${DATASET}.measurements_window_1min"
-
-./gradlew clean execute \
-     -Dexec.mainClass=com.foglamp.IoTStreamBigQuery \
-     -Dexec.args="--runner=DataflowRunner \
-                  --project=${PROJECT} \
-                  --region=${REGION} \
-                  --stagingLocation=${STAGING_LOCATION} \
-                  --tempLocation=${TEMP_LOCATION} \
-                  --typeOneComputationsLengthInSecs=600 \
-                  --typeTwoComputationsLengthInSecs=3600 \
-                  --inputTopic=projects/${PROJECT}/topics/foglamp-demo-raw \
-                  --outputTable=${PROJECT}:${DATASET}.measurements_window_10min"

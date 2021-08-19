@@ -38,11 +38,11 @@ public class BigQuerySchemaCreate {
                     new TableFieldSchema()
                         .setName("property_measured")
                         .setType("STRING")
-                        .setMode("REQUIRED"),
+                        .setMode("NULLABLE"),
                     new TableFieldSchema()
                         .setName("value")
                         .setType("FLOAT64")
-                        .setMode("REQUIRED"),
+                        .setMode("NULLABLE"),
                     new TableFieldSchema()
                         .setName("units_of_measurement")
                         .setType("STRING")

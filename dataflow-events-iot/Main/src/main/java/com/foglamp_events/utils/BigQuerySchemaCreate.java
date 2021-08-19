@@ -33,7 +33,7 @@ public class BigQuerySchemaCreate {
                         .setMode("NULLABLE"),
                     new TableFieldSchema()
                         .setName("event_id")
-                        .setType("TIMESTAMP")
+                        .setType("STRING")
                         .setMode("NULLABLE"),
                     new TableFieldSchema()
                         .setName("event_type")
