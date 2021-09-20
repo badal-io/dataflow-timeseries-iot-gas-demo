@@ -34,15 +34,11 @@ import org.joda.time.Instant;
 
 public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollection<Row>> {
 
-  //public static final String TIMESERIES_MAJOR_KEY = "timeseries_key";
-  //public static final String TIMESERIES_MINOR_KEY = "timeseries_minor_key";
-  //public static final String UPPER_WINDOW_BOUNDARY = "upper_window_boundary";
-  //public static final String LOWER_WINDOW_BOUNDARY = "lower_window_boundary";
-  //public static final String IS_GAP_FILL_VALUE = "is_gap_fill_value";
   public static final String TIMESERIES_MAJOR_KEY = "device_id";
   public static final String TIMESERIES_MINOR_KEY = "property_measured";
   public static final String UPPER_WINDOW_BOUNDARY = "timestamp";
   public static final String DATA = "data";
+  public static final String IS_GAP_FILL_VALUE = "is_gap_fill_value";
 
   public static Schema tsAccumRowSchema() {
 
@@ -52,6 +48,7 @@ public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollect
         .addDateTimeField(UPPER_WINDOW_BOUNDARY)
         .addNullableField("RELATIVE_STRENGTH_INDICATOR", FieldType.DOUBLE)
         .addNullableField("SIMPLE_MOVING_AVERAGE", FieldType.DOUBLE)
+        .addBooleanField(IS_GAP_FILL_VALUE)
         .build();
   }
 
@@ -81,6 +78,7 @@ public class TSAccumToRowPivot extends PTransform<PCollection<TSAccum>, PCollect
             Row.withSchema(tsAccumRowSchema())
                 .withFieldValue(TIMESERIES_MAJOR_KEY, input.getKey().getMajorKey())
                 .withFieldValue(TIMESERIES_MINOR_KEY, input.getKey().getMinorKeyString())
+                .withFieldValue(IS_GAP_FILL_VALUE, input.getHasAGapFillMessage())
                 .withFieldValue(
                     UPPER_WINDOW_BOUNDARY,
                     Instant.ofEpochMilli(Timestamps.toMillis(input.getUpperWindowBoundary())))

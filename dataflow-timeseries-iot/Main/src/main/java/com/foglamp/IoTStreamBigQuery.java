@@ -21,6 +21,7 @@ import com.foglamp.utils.ParseTSDataPointFromPubSub;
 import com.foglamp.utils.TSAccumToRowPivot;
 import com.foglamp.utils.TimeSeriesOptions;
 import com.foglamp.utils.messageParsing.JsonToTableRow;
+import com.foglamp.utils.messageParsing.FilterRow;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.dataflow.sample.timeseriesflow.TimeSeriesData.TSAccum;
 import com.google.dataflow.sample.timeseriesflow.TimeSeriesData.TSDataPoint;
@@ -40,6 +41,8 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.apache.beam.vendor.grpc.v1p26p0.com.google.common.collect.ImmutableList;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
 
 public class IoTStreamBigQuery {
 
@@ -47,8 +50,11 @@ public class IoTStreamBigQuery {
 
     TimeSeriesOptions options = PipelineOptionsFactory.fromArgs(args).as(TimeSeriesOptions.class);
 
+    Instant now = Instant.parse("2000-01-01T00:00:00Z");
+
     options.setAppName("TimeSeriesIoTDataflow");
-    options.setGapFillEnabled(false);
+    options.setGapFillEnabled(true);
+    options.setAbsoluteStopTimeMSTimestamp(now.plus(Duration.standardSeconds(43200)).getMillis());
     options.setTypeOneBasicMetrics(ImmutableList.of("typeone.Sum", "typeone.Min", "typeone.Max"));
     options.setTypeTwoBasicMetrics(
         ImmutableList.of("typetwo.basic.ma.MAFn", "typetwo.basic.stddev.StdDevFn"));
@@ -64,7 +70,8 @@ public class IoTStreamBigQuery {
         pipeline
             .apply(
                 "Pull PubSub Messages", PubsubIO.readStrings().fromTopic(options.getInputTopic()))
-            .apply("To TableRows", new JsonToTableRow());
+            .apply("To TableRows", new JsonToTableRow())
+            .apply("Filter Rows", ParDo.of(new FilterRow()));
 
     PCollection<TSDataPoint> stream =
         messages.apply("To TS Data Point", ParDo.of(new ParseTSDataPointFromPubSub()));

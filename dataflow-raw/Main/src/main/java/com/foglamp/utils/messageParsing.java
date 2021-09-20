@@ -75,48 +75,35 @@ public class messageParsing {
     }
   }
 
-  public static class FormatJson extends DoFn<String, String> {
-    @ProcessElement
-    public void processElement(ProcessContext c) {
-      String input = c.element();
-      c.output(input.replaceAll("}]\"", "}],\""));
-    }
-  }
-
   public static class TableRowFormat extends DoFn<TableRow, Iterable<TableRow>> {
     @ProcessElement
     public void processElement(ProcessContext c) {
       TableRow row = c.element();
       List<TableRow> TableRowList = new ArrayList<TableRow>();
 
-      String property_measured = "";
-      Double value = 0.0;
-      for (Entry<String, Object> field : row.entrySet()) {
-        String device_id = field.getKey();
+      List list_of_measurements = (List) row.get("Equipment");
+      Iterator iterator = list_of_measurements.iterator();
+      while (iterator.hasNext()) {
+        LinkedHashMap map = (LinkedHashMap) iterator.next();
+        Set EntrySet = (Set) map.entrySet();
+        Iterator iterator_set = EntrySet.iterator();
 
-        List list_of_measurements = (List) field.getValue();
-        Iterator iterator = list_of_measurements.iterator();
-        while (iterator.hasNext()) {
-          LinkedHashMap map = (LinkedHashMap) iterator.next();
-          Set EntrySet = (Set) map.entrySet();
-          Iterator iterator_set = EntrySet.iterator();
-          while (iterator_set.hasNext()) {
-            Entry element = (Entry) iterator_set.next();
-            String element_key = (String) element.getKey();
-            
-            if (element_key != "ts" && element_key != "device_version") {
-              property_measured = (String) element.getKey();
-              value = (Double) element.getValue();
-            }
+        String timestamp = (String) map.get("ts");
+        while (iterator_set.hasNext()) {
+          TableRow new_row = new TableRow();
+
+          Entry element = (Entry) iterator_set.next();
+          String element_key = (String) element.getKey();
+          
+          String property_measured = element_key;
+          
+          if (element_key != "ts") {
+            new_row.set("timestamp", timestamp);
+            new_row.set("property_measured", element_key);
+            new_row.set("device_id", "Equipment");
+            new_row.set("value", element.getValue());
+            TableRowList.add(new_row);
           }
-          TableRow new_row = new TableRow()
-                        .set("device_id", device_id)
-                        .set("timestamp", map.get("ts"))
-                        .set("value", value)
-                        .set("property_measured", property_measured)
-                        .set("units_of_measurement", null)
-                        .set("device_version", map.get("device_version"));
-          TableRowList.add(new_row);
         }
       }
       Iterable<TableRow> iterable = TableRowList;

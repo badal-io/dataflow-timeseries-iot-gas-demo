@@ -28,6 +28,9 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.transforms.DoFn;
+
+import java.lang.Integer;
 
 public class messageParsing {
   public static TableRow convertJsonToTableRow(String json) {
@@ -57,6 +60,18 @@ public class messageParsing {
                   return convertJsonToTableRow(json);
                 }
               }));
+    }
+  }
+
+  public static class FilterRow extends DoFn<TableRow, TableRow> {
+    @ProcessElement
+    public void processElement(ProcessContext c) {
+      TableRow row = c.element();
+      String property_measured = (String) row.get("property_measured");
+
+      if (row.get("value") instanceof java.lang.Double) {
+        c.output(row);
+      }
     }
   }
 }
