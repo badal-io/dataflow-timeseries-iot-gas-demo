@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.lang.Number;
 
 public class messageParsing {
   public static TableRow convertJsonToTableRow(String json) {
@@ -104,19 +105,24 @@ public class messageParsing {
             Entry element = (Entry) iterator_set.next();
             String element_key = (String) element.getKey();
             
-            if (element_key != "ts" && element_key != "device_version") {
-              property_measured = (String) element.getKey();
-              value = (Double) element.getValue();
+            if (element_key == "count" || element_key == "averageAsset1" || element_key == "averageAsset2") {
+              property_measured = element_key;
+              if (element_key == "averageAsset1" || element_key == "averageAsset2") {
+                value = ((Number) element.getValue()).doubleValue() - 273.15;
+              } else {
+                value = ((Number) element.getValue()).doubleValue();
+              }
+            
+              TableRow new_row = new TableRow()
+                            .set("device_id", device_id)
+                            .set("timestamp", map.get("ts"))
+                            .set("value", value)
+                            .set("property_measured", property_measured)
+                            .set("units_of_measurement", null)
+                            .set("device_version", "v1.0");
+              TableRowList.add(new_row);
             }
           }
-          TableRow new_row = new TableRow()
-                        .set("device_id", device_id)
-                        .set("timestamp", map.get("ts"))
-                        .set("value", value)
-                        .set("property_measured", property_measured)
-                        .set("units_of_measurement", null)
-                        .set("device_version", map.get("device_version"));
-          TableRowList.add(new_row);
         }
       }
       Iterable<TableRow> iterable = TableRowList;
