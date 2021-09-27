@@ -72,9 +72,6 @@ public class EventFilter {
 
                         Iterable<TableRow> EventDefinitionRows = c.sideInput(view).get(LookUpKey);
 
-                        String property_measured = (String) row.get("property_measured");
-                        Double value = ((Number) row.get("value")).doubleValue();
-
                         String row_event_type = (String) row.get("event_type");
 
                         if (row_event_type == "Device Version Change") {
@@ -89,6 +86,9 @@ public class EventFilter {
 
                             c.output(row);
 
+                            String property_measured = (String) row.get("property_measured");
+                            Double value = ((Number) row.get("value")).doubleValue();
+                            
                             if (EventDefinitionRows != null ) {
                                 for (TableRow entry : EventDefinitionRows) {
                                     String event_type = (String) entry.get("event_type");
