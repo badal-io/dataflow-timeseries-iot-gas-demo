@@ -42,6 +42,10 @@ public class BigQuerySchemaCreate {
                     new TableFieldSchema()
                         .setName("value")
                         .setType("FLOAT64")
+                        .setMode("NULLABLE"),
+                    new TableFieldSchema()
+                        .setName("device_version")
+                        .setType("STRING")
                         .setMode("NULLABLE")
                     ));
     return schema;

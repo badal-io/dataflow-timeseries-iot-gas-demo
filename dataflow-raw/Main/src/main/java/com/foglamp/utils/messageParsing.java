@@ -102,6 +102,7 @@ public class messageParsing {
             new_row.set("property_measured", element_key);
             new_row.set("device_id", "Equipment");
             new_row.set("value", element.getValue());
+            new_row.set("device_version", "v1.0");
             TableRowList.add(new_row);
           }
         }
