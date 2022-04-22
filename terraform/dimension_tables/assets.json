@@ -1,3 +1,3 @@
-{"asset_id":"Tank_01","asset_type":"tank"}
-{"asset_id":"P_01","asset_type":"pump"}
-{"asset_id":"Facility_01","asset_type":"plant"}
+{  "asset_id": "Tank_01",  "asset_type": "tank",  "latitude": "51.097563",  "longitude": "-113.863153"}
+{  "asset_id": "P_01",  "asset_type": "pump",  "latitude": "51.103222",  "longitude": "-113.854141"}
+{  "asset_id": "Facility_01",  "asset_type": "plant",  "latitude": "51.099934",  "longitude": "-113.859291"}
