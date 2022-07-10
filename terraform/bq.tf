@@ -1,7 +1,8 @@
 resource "google_storage_bucket" "foglamp_demo_main" {
-    name     = "foglamp_demo_main"
-    location = "${var.REGION}"
+    name     = "${var.PROJECT}-foglamp_demo_main"
+    location = var.REGION
     uniform_bucket_level_access = true
+    force_destroy = true
 
     provisioner "local-exec" {
         command = <<-EOF
@@ -16,7 +17,7 @@ resource "google_storage_bucket" "foglamp_demo_main" {
 }
 
 resource "google_bigquery_table" "measurements_raw_events" {
-    dataset_id = "${var.DATASET}"
+    dataset_id = var.DATASET
     table_id = "measurements_raw_events"
 
     schema = <<EOF

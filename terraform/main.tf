@@ -1,9 +1,14 @@
 provider "google" {
-    project = "${var.PROJECT}"
-    region  = "${var.REGION}"
-    zone    = "${var.ZONE}"
+    project = var.PROJECT
+    region  = var.REGION
+    zone    = var.ZONE
 }
 
+terraform {
+    backend "gcs" {
+        bucket = "iot-poc-354821-terraform-state" #TODO to be updated
+    }
+}
 resource "tls_private_key" "google_compute_engine_ssh" {
     algorithm = "RSA"
     rsa_bits  = 4096
@@ -15,17 +20,17 @@ resource "tls_private_key" "foglamp_rsa" {
 }
 
 resource "local_file" "foglamp_rsa_public" {
-    content = "${tls_private_key.foglamp_rsa.public_key_pem}"
+    content = tls_private_key.foglamp_rsa.public_key_pem
     filename = "./foglamp_keys/rsa_public.pem"
 }
 
 resource "local_file" "foglamp_rsa_private" {
-    content = "${tls_private_key.foglamp_rsa.private_key_pem}"
+    content = tls_private_key.foglamp_rsa.private_key_pem
     filename = "./foglamp_keys/rsa_private.pem"
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-    name         = "foglamp-demo-instance"
+    name         = "${var.PROJECT}-foglamp-demo-instance"
     machine_type = "e2-standard-2"
 
     tags = ["http-server","https-server"]
@@ -49,12 +54,12 @@ resource "google_compute_instance" "instance_with_ip" {
     }
 
     provisioner "file" {
-        source = "/home/michail/dataflow-timeseries-iot-gas-demo/terraform/scripts"
+        source = "/Users/laminepro/Desktop/GCP/dataflow-timeseries-iot-gas-demo/terraform/scripts" #TODO change default entry of usernamee
         destination = "~/scripts"
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.USER
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -65,7 +70,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.USER
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -79,7 +84,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.USER
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }

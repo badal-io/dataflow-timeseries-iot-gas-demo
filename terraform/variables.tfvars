@@ -1,4 +1,4 @@
-PROJECT={{ Your Project Id }}
+PROJECT="iot-poc-354821"
 REGION="us-central1"
 ZONE="us-central1-a"
 USER="foglamp-demo"
