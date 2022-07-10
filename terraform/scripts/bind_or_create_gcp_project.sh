@@ -18,4 +18,6 @@ echo "creation du bucket state terraform"
 gsutil mb -c regional -l us-central1 "$BUCKET_FOR_STATE" || true
 
 gcloud compute networks create default
+gcloud compute firewall-rules create default-allow-icmp --network default --allow icmp --source-ranges 0.0.0.0/0
+gcloud compute firewall-rules create default-allow-ssh --network default --allow tcp:22 --source-ranges 0.0.0.0/0
 

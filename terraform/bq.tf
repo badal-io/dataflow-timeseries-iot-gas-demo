@@ -70,10 +70,11 @@ resource "google_bigquery_table" "measurements_raw_events" {
         }
     ]
     EOF
+    depends_on = [google_storage_bucket.foglamp_demo_dataflow]
 }
 
 resource "google_bigquery_table" "events_summary_view" {
-    dataset_id = "${var.DATASET}"
+    dataset_id = var.DATASET
     table_id = "events_summary_view"
 
     view {

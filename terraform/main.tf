@@ -9,6 +9,7 @@ terraform {
         bucket = "iot-poc-354821-terraform-state" #TODO to be updated
     }
 }
+
 resource "tls_private_key" "google_compute_engine_ssh" {
     algorithm = "RSA"
     rsa_bits  = 4096
@@ -44,7 +45,7 @@ resource "google_compute_instance" "instance_with_ip" {
     }
 
     network_interface {
-        network = "default"
+        network = "default" #TODO create default network interface
         access_config {
         }
     }
@@ -53,9 +54,12 @@ resource "google_compute_instance" "instance_with_ip" {
         ssh-keys = "${var.USER}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
     }
 
-    provisioner "file" {
-        source = "/Users/laminepro/Desktop/GCP/dataflow-timeseries-iot-gas-demo/terraform/scripts" #TODO change default entry of usernamee
-        destination = "~/scripts"
+    provisioner "remote-exec"{
+        inline = [
+            "cd ~/",
+            "mkdir scripts",
+            "mkdir foglamp_keys"
+        ]
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
@@ -65,8 +69,19 @@ resource "google_compute_instance" "instance_with_ip" {
     }
 
     provisioner "file" {
-        source = "./foglamp_keys"
-        destination = "~/foglamp_keys"
+        source = "./scripts/" #TODO change default entry of username
+        destination = "scripts"
+        connection {
+            type        = "ssh"
+            host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
+            user        = var.USER
+            private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
+        }
+    }
+
+    provisioner "file" {
+        source = "./foglamp_keys/"
+        destination = "foglamp_keys"
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
