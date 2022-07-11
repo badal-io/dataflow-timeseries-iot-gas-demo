@@ -2,7 +2,7 @@
 
 #Part 1: install Chrome remote desktop
 sudo apt-get -y update
-sudo apt-get -y upgrade   
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
 sudo apt install --assume-yes wget
 wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
@@ -59,8 +59,8 @@ sudo apt -y install openjdk-8-jdk
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 #Part 4: install Prosys OPC UA server simulator
-sudo wget https://www.prosysopc.com/opcua/apps/JavaServer/dist/5.0.8-330/prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
-sudo chmod u=x prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
+wget https://www.prosysopc.com/opcua/apps/JavaServer/dist/5.0.8-330/prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
+chmod u=x prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 printf '\n\n\n\n\n\n\n\n\n1\n\n\n\n' | sudo ./prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 
 cp /opt/prosys-opc-ua-simulation-server/'Prosys OPC UA Simulation Server.desktop' ~/Desktop
