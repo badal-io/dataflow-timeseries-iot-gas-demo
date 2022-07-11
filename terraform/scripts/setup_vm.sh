@@ -59,7 +59,7 @@ sudo apt -y install openjdk-8-jdk
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 #Part 4: install Prosys OPC UA server simulator
-wget https://www.prosysopc.com/opcua/apps/JavaServer/dist/5.0.8-330/prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
+sudo wget https://www.prosysopc.com/opcua/apps/JavaServer/dist/5.0.8-330/prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 sudo chmod u=x prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 printf '\n\n\n\n\n\n\n\n\n1\n\n\n\n' | sudo ./prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 
