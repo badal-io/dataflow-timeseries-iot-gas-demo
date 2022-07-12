@@ -50,9 +50,9 @@ sudo dpkg -i foglamp-filter-rename-1.9.1-x86_64.deb
 /usr/local/foglamp/bin/foglamp start
 
 wget https://pki.goog/roots.pem
-cp roots.pem /usr/local/foglamp/data/etc/certs/
-cp ~/foglamp_keys/rsa_private.pem /usr/local/foglamp/data/etc/certs/
-cp ~/foglamp_keys/rsa_public.pem /usr/local/foglamp/data/etc/certs/
+cp roots.pem /usr/local/foglamp/data/etc/certs/pem/
+cp ~/foglamp_keys/rsa_private.pem /usr/local/foglamp/data/etc/certs/pem/ #TODO copy not working properly
+cp ~/foglamp_keys/rsa_public.pem /usr/local/foglamp/data/etc/certs/pem/
 
 #Part 3: install Java
 sudo apt -y install openjdk-8-jdk
