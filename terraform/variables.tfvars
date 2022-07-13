@@ -1,4 +1,5 @@
 PROJECT="iot-poc-354821"
+PROJECT_NUMBER="551236400251"
 REGION="us-central1"
 ZONE="us-central1-a"
 USER="foglamp"

@@ -2,6 +2,10 @@ variable "PROJECT" {
   type = string
 }
 
+variable "PROJECT_NUMBER" {
+  type = string
+}
+
 variable "USER" {
     type = string
 }
