@@ -103,6 +103,13 @@ resource "google_compute_instance" "instance_with_ip" {
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
+    depends_on = [
+        google_project_iam_member.compute-account-iam-bq,
+        google_project_iam_member.compute-account-iam-cloudiot,
+        google_project_iam_member.compute-account-iam-dataflow,
+        google_project_iam_member.compute-account-iam-gcs,
+        google_project_iam_member.compute-account-iam-pubsub
+    ]
 }
 
 output "internal_ip" {
