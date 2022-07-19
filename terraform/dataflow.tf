@@ -55,34 +55,37 @@ resource "google_storage_bucket" "foglamp_demo_dataflow" {
 }
 
 resource "google_dataflow_job" "events-iot" {
-    name = "stream-bq-events"
+    name = "events-iot"
     temp_gcs_location = "${google_storage_bucket.foglamp_demo_dataflow.url}/temp"
     template_gcs_path = "${google_storage_bucket.foglamp_demo_dataflow.url}/templates/events-iot"
     region = var.region
     on_delete = "cancel"
     skip_wait_on_job_termination=true
+    service_account_email = "${var.project_number}-compute@developer.gserviceaccount.com"
 
     depends_on = [google_storage_bucket.foglamp_demo_dataflow]
 }
 
 resource "google_dataflow_job" "events-raw" {
-    name = "stream-bq-events"
+    name = "events-raw"
     temp_gcs_location = "${google_storage_bucket.foglamp_demo_dataflow.url}/temp"
     template_gcs_path = "${google_storage_bucket.foglamp_demo_dataflow.url}/templates/events-raw"
     region = var.region
     on_delete = "cancel"
     skip_wait_on_job_termination=true
+    service_account_email = "${var.project_number}-compute@developer.gserviceaccount.com"
 
     depends_on = [google_storage_bucket.foglamp_demo_dataflow]
 }
 
 resource "google_dataflow_job" "timeseries-iot" {
-    name = "stream-bq-events"
+    name = "timeseries-iot"
     temp_gcs_location = "${google_storage_bucket.foglamp_demo_dataflow.url}/temp"
     template_gcs_path = "${google_storage_bucket.foglamp_demo_dataflow.url}/templates/timeseries-iot"
     region = var.region
     on_delete = "cancel"
     skip_wait_on_job_termination=true
+    service_account_email = "${var.project_number}-compute@developer.gserviceaccount.com"
 
     depends_on = [google_storage_bucket.foglamp_demo_dataflow]
 }
