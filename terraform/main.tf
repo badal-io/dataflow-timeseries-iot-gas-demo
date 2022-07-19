@@ -1,7 +1,7 @@
 provider "google" {
-    project = var.PROJECT
-    region  = var.REGION
-    zone    = var.ZONE
+    project = var.project
+    region  = var.region
+    zone    = var.zone
 }
 
 terraform {
@@ -31,7 +31,7 @@ resource "local_file" "foglamp_rsa_private" {
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-    name         = "${var.PROJECT}-foglamp-demo-instance"
+    name         = "${var.project}-foglamp-demo-instance"
     machine_type = "e2-standard-2"
 
     tags = ["http-server","https-server"]
@@ -51,7 +51,7 @@ resource "google_compute_instance" "instance_with_ip" {
     }
         
     metadata = {
-        ssh-keys = "${var.USER}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
+        ssh-keys = "${var.user}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
     }
 
     provisioner "remote-exec"{
@@ -63,7 +63,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = var.USER
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -74,7 +74,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = var.USER
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -85,7 +85,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = var.USER
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -99,7 +99,7 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = var.USER
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
