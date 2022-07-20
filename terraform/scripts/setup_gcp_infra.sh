@@ -7,9 +7,6 @@ set -euf -o pipefail
 
 export PROJECT_ID="iot-poc-354821"
 
-echo "=== Project Organization ID==="
-gcloud projects describe "$PROJECT_ID" | grep id
-
 echo "=== Activate_service ==="
 ./activate_services.sh
 
@@ -23,9 +20,10 @@ gcloud compute firewall-rules create default-allow-icmp --network default --allo
 gcloud compute firewall-rules create default-allow-ssh --network default --allow tcp:22 --source-ranges 0.0.0.0/0
 
 echo "=== Executing terraform scripts ==="
-cd terraform
+# To be in terraform folder
+cd ..
 terraform init
-terraform apply -auto-approve
+terraform apply -var-file="variables.tfvars" -auto-approve
 
 
 
