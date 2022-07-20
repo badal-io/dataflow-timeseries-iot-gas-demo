@@ -1,7 +1,13 @@
 provider "google" {
-    project = "${var.PROJECT}"
-    region  = "${var.REGION}"
-    zone    = "${var.ZONE}"
+    project = var.project
+    region  = var.region
+    zone    = var.zone
+}
+
+terraform {
+    backend "gcs" {
+        bucket = "<project>-terraform-state"
+    }
 }
 
 resource "tls_private_key" "google_compute_engine_ssh" {
@@ -15,17 +21,17 @@ resource "tls_private_key" "foglamp_rsa" {
 }
 
 resource "local_file" "foglamp_rsa_public" {
-    content = "${tls_private_key.foglamp_rsa.public_key_pem}"
+    content = tls_private_key.foglamp_rsa.public_key_pem
     filename = "./foglamp_keys/rsa_public.pem"
 }
 
 resource "local_file" "foglamp_rsa_private" {
-    content = "${tls_private_key.foglamp_rsa.private_key_pem}"
+    content = tls_private_key.foglamp_rsa.private_key_pem
     filename = "./foglamp_keys/rsa_private.pem"
 }
 
 resource "google_compute_instance" "instance_with_ip" {
-    name         = "foglamp-demo-instance"
+    name         = "${var.project}-foglamp-demo-instance"
     machine_type = "e2-standard-2"
 
     tags = ["http-server","https-server"]
@@ -45,27 +51,41 @@ resource "google_compute_instance" "instance_with_ip" {
     }
         
     metadata = {
-        ssh-keys = "${var.USER}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
+        ssh-keys = "${var.user}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
     }
 
-    provisioner "file" {
-        source = "/home/michail/dataflow-timeseries-iot-gas-demo/terraform/scripts"
-        destination = "~/scripts"
+    provisioner "remote-exec"{
+        inline = [
+            "cd ~/",
+            "mkdir scripts",
+            "mkdir foglamp_keys"
+        ]
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
 
     provisioner "file" {
-        source = "./foglamp_keys"
-        destination = "~/foglamp_keys"
+        source = "./scripts/"
+        destination = "scripts"
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.user
+            private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
+        }
+    }
+
+    provisioner "file" {
+        source = "./foglamp_keys/"
+        destination = "foglamp_keys"
+        connection {
+            type        = "ssh"
+            host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
@@ -79,10 +99,17 @@ resource "google_compute_instance" "instance_with_ip" {
         connection {
             type        = "ssh"
             host        = google_compute_instance.instance_with_ip.network_interface.0.access_config.0.nat_ip
-            user        = "${var.USER}"
+            user        = var.user
             private_key = tls_private_key.google_compute_engine_ssh.private_key_pem
         }
     }
+    depends_on = [
+        google_project_iam_member.compute-account-iam-bq,
+        google_project_iam_member.compute-account-iam-cloudiot,
+        google_project_iam_member.compute-account-iam-dataflow,
+        google_project_iam_member.compute-account-iam-gcs,
+        google_project_iam_member.compute-account-iam-pubsub
+    ]
 }
 
 output "internal_ip" {

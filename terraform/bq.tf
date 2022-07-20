@@ -1,14 +1,15 @@
 resource "google_storage_bucket" "foglamp_demo_main" {
-    name     = "foglamp_demo_main"
-    location = "${var.REGION}"
+    name     = "${var.project}-foglamp_demo_main"
+    location = var.region
     uniform_bucket_level_access = true
+    force_destroy = true
 
     provisioner "local-exec" {
         command = <<-EOF
             #!/bin/bash
             export BQ_IMPORT_BUCKET=${google_storage_bucket.foglamp_demo_main.url}
-            export PROJECT='${var.PROJECT}'
-            export DATASET='${var.DATASET}'
+            export project='${var.project}'
+            export DATASET='${var.dataset}'
             chmod +x ./scripts/setup_bq.sh
             ./scripts/setup_bq.sh
         EOF
@@ -16,7 +17,7 @@ resource "google_storage_bucket" "foglamp_demo_main" {
 }
 
 resource "google_bigquery_table" "measurements_raw_events" {
-    dataset_id = "${var.DATASET}"
+    dataset_id = var.dataset
     table_id = "measurements_raw_events"
 
     schema = <<EOF
@@ -69,10 +70,11 @@ resource "google_bigquery_table" "measurements_raw_events" {
         }
     ]
     EOF
+    depends_on = [google_storage_bucket.foglamp_demo_main]
 }
 
 resource "google_bigquery_table" "events_summary_view" {
-    dataset_id = "${var.DATASET}"
+    dataset_id = var.dataset
     table_id = "events_summary_view"
 
     view {
@@ -88,7 +90,7 @@ resource "google_bigquery_table" "events_summary_view" {
                     severity,
                     MIN(timestamp) AS start_time,
                     MAX(timestamp) AS end_time
-                FROM `${var.PROJECT}.${var.DATASET}.measurements_raw_events`
+                FROM `${var.project}.${var.dataset}.measurements_raw_events`
                 GROUP BY
                     device_id,
                     event_id,

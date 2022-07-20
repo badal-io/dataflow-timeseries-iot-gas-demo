@@ -1,19 +1,27 @@
-variable "PROJECT" {
+variable "project" {
   type = string
 }
 
-variable "USER" {
+variable "project_number" {
+  type = string
+}
+
+variable "user" {
     type = string
 }
 
-variable "REGION" {
+variable "region" {
     type = string
 }
 
-variable "ZONE" {
+variable "zone" {
     type = string
 }
 
-variable "DATASET" {
+variable "dataset" {
     type = string
+}
+
+variable "deletion_protection" {
+  type = bool
 }

@@ -7,9 +7,11 @@ This repository provides a set of Apache Beam pipelines for processing streaming
 
 ## Getting Started
 ### Requirements
-- A GCP project (to create one see [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects))
+- A GCP project (to create one see [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects)). Make sure billing is activated on the project.
 - Java 8
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+
+**Take note of the gcp project name and project number (sequence of number). They will be needed in the following steps.**
 
 ### Setting up the Demo
 <b>Executing Terraform will provision the following GCP resources:</b>
@@ -27,26 +29,19 @@ Terraform will also create the necessary RSA keys to connect to the VM and authe
 
 <b>Follow the following steps to deploy the Demo resources using Terraform:</b>
 
+0. Execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.
 1. Clone the repository to your local machine:  
 ```
 git clone https://github.com/badal-io/dataflow-timeseries-iot-gas-demo.git
 ```
-2. Navigate to the Terraform directory:  
+2. Navigate to the scripts directory with Terraform folder:  
 ```
-cd ./terraform
+cd ./terraform/scripts
 ```
-3. Edit the ```variables.tfvars``` file to configure the Terraform input variables with your values
-4. To add your GCP credentials, navigate to the Cloud Console and download the JSON key file of an existing or new Service Account and store it on your local machine. Set the value of the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` to the location of the file:  
-```
-export GOOGLE_APPLICATION_CREDENTIALS={{path to service account JSON key}}
-```
-Finally, execute ```gcloud auth login``` and follow the instructions to authenticate to GCP.     
-5. Run Terraform:
-```
-terraform init 
-terraform apply -var-file="variables.tfvars"
-```
-:grey_exclamation: The deployment will take approximately 6-7 minutes.  
+3. Run the **_project_init.sh_** script to replace project variables. You will be prompted to enter gcp project name and gcp project number.
+4. Run the **_setup_gcp_infra.sh_** to setup gcp infrastructure.
+
+:grey_exclamation: The deployment will take approximately 10 minutes.  
 
 <b> Once Terraform has finished deploying the GCP resources needed for the Demo, you can start setting up FogLAMP:</b>
 
