@@ -19,5 +19,8 @@ sed -i .backup "s/iot-poc-354821/$PROJECT_ID/g" ../../terraform/variables.tfvars
 echo "set project id in  terraform/main.tf"
 sed -i .backup "s/iot-poc-354821/$PROJECT_ID/g" ../../terraform/main.tf
 
+echo "set project id in  terraform/scripts/setup_gcp_infra.sh"
+sed -i .backup "s/iot-poc-354821/$PROJECT_ID/g" ../../terraform/scripts/setup_gcp_infra.sh
+
 echo "set project number in  terraform/variables.tfvars"
 sed -i .backup "s/551236400251/$PROJECT_NUMBER/g" ../../terraform/variables.tfvars
