@@ -1,5 +1,5 @@
 #!/bin/bash
-#ythis script replaces gcp project name and project number in tf files.
+#this script replaces gcp project name and project number in tf files.
 #you might need to update path of terraform files inn lines 17, 20 and 23.
 
 echo "Enter your project id:"

@@ -1,5 +1,5 @@
 #!/bin/bash -x
-#can't work on purpose if initiate_terraform_project.sh has not been run
+#can't work on purpose if project_init.sh has not been run
 #gcp project has to be created first, and linked to a billing account
 
 #in case of errors we stop the script
