@@ -20,7 +20,7 @@ gcloud compute firewall-rules create default-allow-icmp --network default --allo
 gcloud compute firewall-rules create default-allow-ssh --network default --allow tcp:22 --source-ranges 0.0.0.0/0
 
 echo "=== Executing terraform scripts ==="
-# To be in terraform folder
+#to be in terraform folder
 cd ..
 terraform init
 terraform apply -var-file="variables.tfvars" -auto-approve
