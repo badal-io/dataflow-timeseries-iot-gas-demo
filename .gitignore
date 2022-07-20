@@ -50,8 +50,10 @@ sdks/java/maven-archetypes/examples-java8/src/main/resources/archetype-resources
 # Ignore Visual Studio Code files.
 **/.vscode/**/*
 
-# Local .terraform directories
+# Local .terraform directories and backup files
 **/.terraform/*
+/terraform/*.backup
+/terraform/scripts/*.backup
 
 # .tfstate files
 *.tfstate
