@@ -6,7 +6,7 @@ provider "google" {
 
 terraform {
     backend "gcs" {
-        bucket = "iot-poc-354821-terraform-state" #TODO to be updated
+        bucket = "iot-poc-354821-terraform-state"
     }
 }
 
@@ -45,7 +45,7 @@ resource "google_compute_instance" "instance_with_ip" {
     }
 
     network_interface {
-        network = "default" #TODO create default network interface
+        network = "default"
         access_config {
         }
     }
@@ -69,7 +69,7 @@ resource "google_compute_instance" "instance_with_ip" {
     }
 
     provisioner "file" {
-        source = "./scripts/" #TODO change default entry of username
+        source = "./scripts/"
         destination = "scripts"
         connection {
             type        = "ssh"
