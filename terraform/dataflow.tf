@@ -50,7 +50,12 @@ resource "google_storage_bucket" "foglamp_demo_dataflow" {
     depends_on = [google_pubsub_topic.foglamp-demo,
         google_pubsub_topic.foglamp-demo-raw,
         google_pubsub_topic.foglamp-demo-events,
-        google_storage_bucket.foglamp_demo_main
+        google_storage_bucket.foglamp_demo_main,
+        google_project_iam_member.compute-account-iam-dataflow,
+        google_project_iam_member.compute-account-iam-pubsub,
+        google_project_iam_member.compute-account-iam-gcs,
+        google_project_iam_member.compute-account-iam-cloudiot,
+        google_project_iam_member.compute-account-iam-bq
     ]
 }
 

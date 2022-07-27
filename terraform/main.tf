@@ -49,7 +49,7 @@ resource "google_compute_instance" "instance_with_ip" {
         access_config {
         }
     }
-        
+
     metadata = {
         ssh-keys = "${var.user}:${tls_private_key.google_compute_engine_ssh.public_key_openssh}"
     }

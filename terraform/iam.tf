@@ -7,7 +7,7 @@ resource "google_project_iam_member" "compute-account-iam-cloudiot" {
 
 resource "google_project_iam_member" "compute-account-iam-bq" {
   project = var.project
-  role = "roles/bigquery.dataEditor"
+  role = "roles/bigquery.admin"
   member = "serviceAccount:${var.project_number}-compute@developer.gserviceaccount.com"
 }
 
