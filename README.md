@@ -90,6 +90,14 @@ terraform output internal_ip
 23. Finally, back to the "South Service" menu, click on your asset and select "Enabled" to activate it.
 24. After a few moments, you should be able to see the number of messages that have been read/sent through FogLAMP:  
 ![FogLAMP Final](images/foglamp_final.png?raw=true "FogLAMP Final")  
+
+Now that you have tested end to end operation for one variable. You can repeat the process for the following variables:
+- density
+- pressure
+- temperature
+
+You can also replicate these steps to create more sensors (through duplication) as well as more south operators associated to them in order to simulate more scenarios.
+
 ### Exploring the Data
 Once FogLAMP is transmitting the OPC UA data to the IoT Core, the downstream Pub/Sub topics and Dataflow Jobs will stream them to BigQuery.  
 To explore the data:
