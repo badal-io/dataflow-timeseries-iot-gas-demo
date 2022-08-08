@@ -30,10 +30,35 @@ resource "local_file" "foglamp_rsa_private" {
     filename = "./foglamp_keys/rsa_private.pem"
 }
 
+resource "google_compute_network" "default" {
+    name = "default"
+}
+
+resource "google_compute_firewall" "default" {
+    name    = "default"
+    network = google_compute_network.default.name
+
+    allow {
+        protocol = "icmp"
+    }
+
+    allow {
+        protocol = "tcp"
+        ports    = ["22", "8081"]
+    }
+
+    source_tags = ["web"]
+    source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_address" "static" {
+    name = "ipv4-address"
+}
+
 resource "google_compute_instance" "instance_with_ip" {
     name         = "${var.project}-foglamp-demo-instance"
     machine_type = "e2-standard-2"
-
+    can_ip_forward = true
     tags = ["http-server","https-server"]
 
     boot_disk {
@@ -47,6 +72,7 @@ resource "google_compute_instance" "instance_with_ip" {
     network_interface {
         network = "default"
         access_config {
+            nat_ip = google_compute_address.static.address
         }
     }
 
