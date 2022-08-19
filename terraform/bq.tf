@@ -71,6 +71,7 @@ resource "google_bigquery_table" "measurements_raw_events" {
     ]
     EOF
     depends_on = [google_storage_bucket.foglamp_demo_main]
+    deletion_protection = false
 }
 
 resource "google_bigquery_table" "events_summary_view" {
@@ -113,4 +114,5 @@ resource "google_bigquery_table" "events_summary_view" {
     }
 
     depends_on = [google_bigquery_table.measurements_raw_events]
+    deletion_protection = false
 }

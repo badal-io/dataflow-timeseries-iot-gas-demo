@@ -44,7 +44,7 @@ resource "google_compute_firewall" "default" {
 
     allow {
         protocol = "tcp"
-        ports    = ["22", "8081"]
+        ports    = ["22", "80", "8081", "12345-12346"]
     }
 
     source_tags = ["web"]
@@ -130,6 +130,7 @@ resource "google_compute_instance" "instance_with_ip" {
         }
     }
     depends_on = [
+        google_compute_network.default,
         google_project_iam_member.compute-account-iam-bq,
         google_project_iam_member.compute-account-iam-cloudiot,
         google_project_iam_member.compute-account-iam-dataflow,
