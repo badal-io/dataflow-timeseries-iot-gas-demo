@@ -1,3 +1,8 @@
+resource "google_bigquery_dataset" "foglamp_dataset" {
+    location = var.region
+    dataset_id = var.dataset
+}
+
 resource "google_storage_bucket" "foglamp_demo_main" {
     name     = "${var.project}-foglamp_demo_main"
     location = var.region
@@ -14,6 +19,7 @@ resource "google_storage_bucket" "foglamp_demo_main" {
             ./scripts/setup_bq.sh
         EOF
     }
+    depends_on = [google_bigquery_dataset.foglamp_dataset]
 }
 
 resource "google_bigquery_table" "measurements_raw_events" {
@@ -70,7 +76,10 @@ resource "google_bigquery_table" "measurements_raw_events" {
         }
     ]
     EOF
-    depends_on = [google_storage_bucket.foglamp_demo_main]
+    depends_on = [
+        google_bigquery_dataset.foglamp_dataset ,
+        google_storage_bucket.foglamp_demo_main
+    ]
     deletion_protection = false
 }
 
@@ -82,7 +91,7 @@ resource "google_bigquery_table" "events_summary_view" {
         use_legacy_sql = false
         query = <<EOF
             WITH T1 AS (
-                SELECT 
+                SELECT
                     device_id,
                     event_id,
                     event_type,
@@ -101,18 +110,21 @@ resource "google_bigquery_table" "events_summary_view" {
                     severity
                 )
 
-            SELECT device_id, event_id, event_type, start_time, 
+            SELECT device_id, event_id, event_type, start_time,
                 CASE
                     WHEN TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), end_time, SECOND) > 60 THEN end_time
                     ELSE NULL
                 END AS end_time,
                 property_measured,
-                comments, 
+                comments,
                 severity
-            FROM T1 
+            FROM T1
         EOF
     }
 
-    depends_on = [google_bigquery_table.measurements_raw_events]
+    depends_on = [
+        google_bigquery_dataset.foglamp_dataset,
+        google_bigquery_table.measurements_raw_events
+    ]
     deletion_protection = false
 }

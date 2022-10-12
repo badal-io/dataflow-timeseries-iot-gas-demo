@@ -1,4 +1,8 @@
 resource "google_pubsub_topic" "foglamp-demo" {
+    name = "foglamp-demo-depreciated"
+}
+
+resource "google_pubsub_topic" "foglamp-demo-v2" {
     name = "foglamp-demo"
 }
 
@@ -31,5 +35,6 @@ resource "google_cloudiot_device" "foglamp-demo-device" {
     }
 
     depends_on = [tls_private_key.foglamp_rsa]
-    
+
+
 }

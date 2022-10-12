@@ -5,10 +5,11 @@ sudo apt-get -y update
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
 sudo apt install --assume-yes wget
+sudo apt install --assume-yes unzip
 wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
 sudo dpkg --install chrome-remote-desktop_current_amd64.deb
 sudo apt install --assume-yes --fix-broken
-     
+
 sudo DEBIAN_FRONTEND=noninteractive \
     apt install --assume-yes xfce4 desktop-base
 
@@ -65,3 +66,54 @@ chmod u=x prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 printf '\n\n\n\n\n\n\n\n\n1\n\n\n\n' | sudo ./prosys-opc-ua-simulation-server-linux-5.0.8-330.sh
 
 cp /opt/prosys-opc-ua-simulation-server/'Prosys OPC UA Simulation Server.desktop' ~/Desktop
+
+#Part 5: Install pubsub north plugin
+unzip /home/foglamp/files/fledge-north-gcp-ps-develop.zip
+pip3 install --upgrade pip
+pip3 install -Ir fledge-north-gcp-ps-develop/python/requirements-gcp.txt --no-cache-dir
+pip3 install numpy
+
+(cd fledge-north-gcp-ps-develop; find . -type f -not -path '*/\.*' -exec sed -i 's/FLEDGE/FOGLAMP/g' {} +)
+(cd fledge-north-gcp-ps-develop; find . -type f -not -path '*/\.*' -exec sed -i 's/Fledge/FogLAMP/g' {} +)
+(cd fledge-north-gcp-ps-develop; find . -type f -not -path '*/\.*' -exec sed -i 's/fledge/foglamp/g' {} +)
+
+sudo cp -r fledge-north-gcp-ps-develop/python/fledge/plugins/north/gcp /usr/local/foglamp/python/foglamp/plugins/north/.
+
+#Part 6: Install ML plugins
+unzip /home/foglamp/files/plugins_ml.zip
+
+ID=$(cat /etc/os-release | grep -w ID | cut -f2 -d"=")
+
+
+
+if [ ${ID} = "raspbian" ]; then
+   pip3 install opencv-contrib-python==4.1.0.25
+fi
+
+if [ ${ID} = "ubuntu" ]; then
+   pip3 install --upgrade pip
+   pip3 install opencv-contrib-python
+fi
+
+if [ ${ID} = "mendel" ]; then
+
+   git clone https://github.com/pjalusic/opencv4.1.1-for-google-coral.git /tmp/opencv_coral
+   cp /tmp/opencv_coral/cv2.so /usr/local/lib/python3.7/dist-packages/cv2.so
+   sudo cp -r /tmp/opencv_coral/libraries/. /usr/local/lib
+   rm -rf /tmp/opencv_coral
+
+fi
+
+
+py=$(python3 -V | awk '{print $2}' | awk -F. '{print $1 $2}')
+arch=$(uname -m)
+url=$(echo -n "https://github.com/google-coral/pycoral/releases/download/release-frogfish/tflite_runtime-2.5.0-cp"; echo -n $py; echo -n "-cp"; echo -n $py; echo -n "m-linux_"; echo -n ${arch}; echo -n ".whl")
+pip3 install $url
+
+if [ ${ID} != "mendel" ]; then
+  echo "In order to use Edge TPU, please install edge TPU runtime, libedgetpu1-std
+https://coral.ai/software/#debian-packages
+note: This is pre-installed on Coral Dev Board."
+fi
+
+sudo cp -r plugins_ml/* /usr/local/foglamp/python/foglamp/plugins/filter/.

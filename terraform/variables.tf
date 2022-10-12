@@ -7,19 +7,19 @@ variable "project_number" {
 }
 
 variable "user" {
-    type = string
+  type = string
 }
 
 variable "region" {
-    type = string
+  type = string
 }
 
 variable "zone" {
-    type = string
+  type = string
 }
 
 variable "dataset" {
-    type = string
+  type = string
 }
 
 variable "deletion_protection" {
