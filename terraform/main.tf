@@ -6,7 +6,7 @@ provider "google" {
 
 terraform {
     backend "gcs" {
-        bucket = "<project>-terraform-state"
+        bucket = "iot-poc-354821-terraform-state"
     }
 }
 
