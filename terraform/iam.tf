@@ -5,6 +5,12 @@ resource "google_service_account" "foglamp_service_account" {
   description = "SA used by foglamp north plugin to publish in pub sub"
 }
 
+resource "google_service_account" "looker_service_account" {
+  account_id   = "looker"
+  display_name = "looker"
+  description = "SA used by looker to connect and interact with BQ"
+}
+
 #resource "google_service_account_key" "foglamp-sa-key" {
 #  service_account_id = google_service_account.foglamp_service_account.name
 #}
@@ -13,6 +19,12 @@ resource "google_project_iam_member" "foglamp-pubsub" {
   project = var.project
   role = "roles/pubsub.editor"
   member = "serviceAccount:${google_service_account.foglamp_service_account.email}"
+}
+
+resource "google_project_iam_member" "looker-bq" {
+  project = var.project
+  role = "roles/bigquery.admin"
+  member = "serviceAccount:${google_service_account.looker_service_account.email}"
 }
 
 resource "google_project_iam_member" "compute-account-iam-cloudiot" {
