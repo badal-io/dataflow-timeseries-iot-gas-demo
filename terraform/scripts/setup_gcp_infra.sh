@@ -5,7 +5,7 @@
 #in case of errors we stop the script
 set -euf -o pipefail
 
-export PROJECT_ID="iot-poc-354821"
+export PROJECT_ID="<project>"
 
 echo "=== Activate_service ==="
 ./terraform/script/activate_services.sh
